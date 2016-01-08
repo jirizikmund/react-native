@@ -65,15 +65,23 @@ class UIExplorerList extends React.Component {
   props: Props;
 
   render() {
-    return (
+    const list =
       <UIExplorerListBase
         components={COMPONENTS}
         apis={APIS}
         searchText=""
         renderAdditionalView={this.renderAdditionalView.bind(this)}
         onPressRow={this.onPressRow.bind(this)}
-      />
-    );
+      />;
+    if (this.props.isInDrawer) {
+      return (
+        <View style={styles.listContainer}>
+          {list}
+        </View>
+      );
+    } else {
+      return list;
+    }
   }
 
   renderAdditionalView(renderRow, renderTextInput): React.Component {
@@ -103,6 +111,11 @@ class UIExplorerList extends React.Component {
 var styles = StyleSheet.create({
   searchTextInput: {
     padding: 2,
+  },
+  listContainer: {
+    flex: 1,
+    paddingTop: 25,
+    backgroundColor: 'white',
   },
 });
 

@@ -24,6 +24,7 @@ import com.facebook.react.modules.location.LocationModule;
 import com.facebook.react.modules.netinfo.NetInfoModule;
 import com.facebook.react.modules.network.NetworkingModule;
 import com.facebook.react.modules.storage.AsyncStorageModule;
+import com.facebook.react.modules.statusbar.StatusBarModule;
 import com.facebook.react.modules.toast.ToastModule;
 import com.facebook.react.modules.websocket.WebSocketModule;
 import com.facebook.react.uimanager.ViewManager;
@@ -64,6 +65,7 @@ public class MainReactPackage implements ReactPackage {
       new LocationModule(reactContext),
       new NetworkingModule(reactContext),
       new NetInfoModule(reactContext),
+      new StatusBarModule(reactContext),
       new WebSocketModule(reactContext),
       new ToastModule(reactContext));
   }

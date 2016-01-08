@@ -18,17 +18,17 @@ var UIManager = require('UIManager');
 var View = require('View');
 
 var DrawerConsts = UIManager.AndroidDrawerLayout.Constants;
+var StatusBarModule = require('NativeModules').StatusBar;
+var Platform = require('Platform');
 
 var dismissKeyboard = require('dismissKeyboard');
+var processColor = require('processColor');
 var requireNativeComponent = require('requireNativeComponent');
 
 var RK_DRAWER_REF = 'drawerlayout';
 var INNERVIEW_REF = 'innerView';
 
-var DrawerLayoutValidAttributes = {
-  drawerWidth: true,
-  drawerPosition: true,
-};
+var TRANSPARENT_STATUS_BAR = Platform.Version >= 21;
 
 var DRAWER_STATES = [
   'Idle',
@@ -123,6 +123,19 @@ var DrawerLayoutAndroid = React.createClass({
 
   mixins: [NativeMethodsMixin],
 
+  componentDidMount: function() {
+    if (TRANSPARENT_STATUS_BAR) {
+      this._setupStatusBar();
+    }
+  },
+
+  componentWillUnmount: function() {
+    if (TRANSPARENT_STATUS_BAR) {
+      StatusBarModule.setTranslucent(false);
+      StatusBarModule.setColor(this.state.statusBarColor);
+    }
+  },
+
   getInnerViewNode: function() {
     return this.refs[INNERVIEW_REF].getInnerViewNode();
   },
@@ -131,9 +144,17 @@ var DrawerLayoutAndroid = React.createClass({
     var drawerViewWrapper =
       <View style={[styles.drawerSubview, {width: this.props.drawerWidth}]} collapsable={false}>
         {this.props.renderNavigationView()}
+        {
+          TRANSPARENT_STATUS_BAR &&
+          <View style={styles.statusBarOverlay} />
+        }
       </View>;
     var childrenWrapper =
       <View ref={INNERVIEW_REF} style={styles.mainSubview} collapsable={false}>
+        {
+          TRANSPARENT_STATUS_BAR &&
+          <View style={[styles.statusBar, {backgroundColor: this.state.statusBarColor}]}/>
+        }
         {this.props.children}
       </View>;
     return (
@@ -151,6 +172,15 @@ var DrawerLayoutAndroid = React.createClass({
         {drawerViewWrapper}
       </AndroidDrawerLayout>
     );
+  },
+
+  _setupStatusBar: function() {
+    StatusBarModule.setTranslucent(true);
+    StatusBarModule.getColor().then((color) => {
+      this.setState({statusBarColor: color}, () => {
+        StatusBarModule.setColor(processColor('transparent'));
+      });
+    });
   },
 
   _onDrawerSlide: function(event) {
@@ -216,6 +246,18 @@ var styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
+  },
+  statusBar: {
+    height: StatusBarModule.HEIGHT,
+  },
+  statusBarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: StatusBarModule.HEIGHT,
+    backgroundColor: '#000',
+    opacity: 64 / 255,
   },
 });
 

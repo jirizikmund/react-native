@@ -2,6 +2,9 @@
 <resources>
     <style name="Theme.ReactNative.AppCompat.Light" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:textColor">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
     <style name="Theme.ReactNative.AppCompat.Light.NoActionBar.FullScreen"
            parent="@style/Theme.ReactNative.AppCompat.Light">
