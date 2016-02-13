@@ -22,6 +22,7 @@ var {
   Text,
   TouchableHighlight,
   View,
+  TextInput,
 } = React;
 
 var UIExplorerBlock = require('./UIExplorerBlock');
@@ -35,14 +36,43 @@ var alertMessage = 'Credibly reintermediate next-generation potentialities after
  */
 var SimpleAlertExampleBlock = React.createClass({
 
+  getInitialState() {
+    return {
+      dialog1Opened: false,
+      dialog2Opened: false,
+    };
+  },
+
   render: function() {
     return (
       <View>
-        <TouchableHighlight style={styles.wrapper}
-          onPress={() => Alert.alert(
-            'Alert Title',
-            alertMessage,
-          )}>
+        {
+          this.state.dialog1Opened ?
+          <Alert
+            title="Alert Title"
+            message={alertMessage}
+            onDismiss={() => this.setState({dialog1Opened: false})}
+          >
+            <TextInput value="hello" />
+            <Alert.Button text="OK" onPress={() => this.setState({dialog1Opened: false})} />
+          </Alert> :
+          null
+        }
+        {
+          this.state.dialog2Opened ?
+          <Alert
+            title="Alert Title 2"
+            message={alertMessage}
+            onDismiss={() => this.setState({dialog2Opened: false})}
+          >
+            <Alert.Button text="Cancel" onPress={() => this.setState({dialog2Opened: false})} />
+            <Alert.Button text="OK" onPress={() => this.setState({dialog2Opened: false})} />
+          </Alert> :
+          null
+        }
+        <TouchableHighlight
+          style={styles.wrapper}
+          onPress={() => this.setState({dialog1Opened: true})}>
           <View style={styles.button}>
             <Text>Alert with message and default button</Text>
           </View>
@@ -106,7 +136,7 @@ var SimpleAlertExampleBlock = React.createClass({
 
 var AlertExample = React.createClass({
   statics: {
-    title: 'Alert',
+    title: '<Alert>',
     description: 'Alerts display a concise and informative message ' +
     'and prompt the user to make a decision.',
   },
