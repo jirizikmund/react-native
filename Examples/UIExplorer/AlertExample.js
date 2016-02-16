@@ -51,9 +51,8 @@ var SimpleAlertExampleBlock = React.createClass({
           <Alert
             title="Alert Title"
             message={alertMessage}
-            onDismiss={() => this.setState({dialog1Opened: false})}
-          >
-            <TextInput value="hello" />
+            onDismiss={() => this.setState({dialog1Opened: false})}>
+            <TextInput secureTextEntry />
             <Alert.Button text="OK" onPress={() => this.setState({dialog1Opened: false})} />
           </Alert> :
           null

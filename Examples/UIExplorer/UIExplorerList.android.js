@@ -23,6 +23,7 @@ var {
 var UIExplorerListBase = require('./UIExplorerListBase');
 
 var COMPONENTS = [
+  require('./AlertExample').AlertExample,
   require('./ImageExample'),
   require('./ListViewExample'),
   require('./PickerAndroidExample'),
@@ -43,7 +44,6 @@ var COMPONENTS = [
 
 var APIS = [
   require('./AccessibilityAndroidExample.android'),
-  require('./AlertExample').AlertExample,
   require('./AppStateExample'),
   require('./BorderExample'),
   require('./CameraRollExample'),

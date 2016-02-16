@@ -28,6 +28,7 @@ import type { NavigationContext } from 'NavigationContext';
 var UIExplorerListBase = require('./UIExplorerListBase');
 
 var COMPONENTS = [
+  require('./AlertIOSExample'),
   require('./ActivityIndicatorIOSExample'),
   require('./DatePickerIOSExample'),
   require('./ImageExample'),
@@ -61,7 +62,6 @@ var APIS = [
   require('./AccessibilityIOSExample'),
   require('./ActionSheetIOSExample'),
   require('./AdSupportIOSExample'),
-  require('./AlertIOSExample'),
   require('./AnimatedExample'),
   require('./AnimatedGratuitousApp/AnExApp'),
   require('./AppStateIOSExample'),

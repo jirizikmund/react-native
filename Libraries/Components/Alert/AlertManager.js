@@ -41,6 +41,19 @@ type Buttons = Array<{
   style?: AlertButtonStyle;
 }>;
 
+type Button = {
+  text: string;
+  onPress: Function,
+  destructive: boolean,
+  cancel: boolean,
+};
+
+type Alert = {
+  title: string;
+  message: string;
+  buttons: [Button];
+};
+
 /**
  * Launches an alert dialog with the specified title and message.
  *
@@ -80,18 +93,21 @@ type Buttons = Array<{
  * ```
  */
 class AlertManager {
+
+  _alertQueue: [Alert];
+
   constructor() {
     this._alertQueue = [];
   }
 
-  add(alert) {
+  add(alert: Alert) {
     this._alertQueue.push(alert);
     if (this._alertQueue.length === 1) {
       this._showAlertFromElement(alert);
     }
   }
 
-  remove(alert, dismiss) {
+  remove(alert: Alert, dismiss: boolean) {
     const alertIndex = this._alertQueue.indexOf(alert);
     const isDisplayed = alertIndex === 0;
     this._alertQueue.splice(alertIndex, 1);

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule Alert
+ * @flow
  */
 'use strict';
 
@@ -19,6 +20,10 @@ const manager = new AlertManager();
 
 const Alert = React.createClass({
   propTypes: {
+    /**
+     * If the alert is being shown.
+     */
+    opened: PropTypes.bool,
     /**
      * The title of the alert.
      */
@@ -50,7 +55,7 @@ const Alert = React.createClass({
     manager.remove(this);
   },
 
-  render() {
+  render(): ?ReactElement {
     return null;
   },
 });
