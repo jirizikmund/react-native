@@ -1,5 +1,6 @@
-"use strict";
+'use strict';
 var docgen = require('react-docgen');
+var dox = require('dox');
 
 function stylePropTypeHandler(documentation, path) {
   var propTypesPath = docgen.utils.getMemberValuePath(path, 'propTypes');
@@ -72,6 +73,74 @@ function deprecatedPropTypeHandler(documentation, path) {
   });
 }
 
+const reactMethods = [
+  'render',
+  'getInitialState',
+  'getDefaultProps',
+  'componentWillMount',
+  'componentDidMount',
+  'componentWillReceiveProps',
+  'shouldComponentUpdate',
+  'componentWillUpdate',
+  'componentDidUpdate',
+  'componentWillUnmount',
+];
+
+function methodsHandler(documentation, path) {
+  const properties = path.get('properties');
+  if (properties.node.type !== 'ObjectExpression') {
+    return;
+  }
+  const methods = [];
+  properties.each((propPath) => {
+    const node = propPath.node;
+    const name = docgen.utils.getPropertyName(propPath);
+    if (node.value.type !== 'FunctionExpression' || reactMethods.indexOf(name) !== -1) {
+      return;
+    }
+    const params = [];
+    propPath.get('value').get('params').each((paramPath) => {
+      const param = {
+        name: paramPath.node.name,
+      };
+      const typePath = docgen.utils.getTypeAnnotation(paramPath);
+      if (typePath) {
+        const type = docgen.utils.getFlowType(typePath);
+        param.typehint = type.name;
+      }
+
+      params.push(param);
+    });
+    const method = {
+      name: name,
+      params: params,
+    };
+    const docBlock = docgen.utils.docblock.getDocblock(propPath);
+
+    if (docBlock) {
+      const javaDoc = parseJavaDocComment(docBlock);
+      javaDoc.tags.forEach((tag) => {
+        if (tag.type === 'param') {
+          const param = params.find(p => p.name === tag.name);
+          if (param) {
+            param.description = tag.description;
+          }
+        }
+      });
+
+      method.description = javaDoc.description.full;
+    }
+
+    methods.push(method);
+  });
+
+  documentation.set('methods', methods);
+}
+
+function parseJavaDocComment(docBlock) {
+  return dox.parseComment(docBlock, {raw: true});
+}
+
 function findExportedOrFirst(node, recast) {
   return docgen.resolver.findExportedComponentDefinition(node, recast) ||
     docgen.resolver.findAllComponentDefinitions(node, recast)[0];
@@ -125,5 +194,6 @@ function findExportedObject(ast, recast) {
 
 exports.stylePropTypeHandler = stylePropTypeHandler;
 exports.deprecatedPropTypeHandler = deprecatedPropTypeHandler;
+exports.methodsHandler = methodsHandler;
 exports.findExportedOrFirst = findExportedOrFirst;
 exports.findExportedObject = findExportedObject;

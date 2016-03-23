@@ -89,9 +89,6 @@ function shouldDisplayInSidebar(componentName) {
 }
 
 function getNextComponent(i) {
-  var next;
-  var filepath = all[i];
-
   if (all[i + 1]) {
     var nextComponentName = getNameFromPath(all[i + 1]);
 
@@ -153,8 +150,15 @@ function renderComponent(filepath) {
     docgen.defaultHandlers.concat([
       docgenHelpers.stylePropTypeHandler,
       docgenHelpers.deprecatedPropTypeHandler,
+      docgenHelpers.methodsHandler,
     ])
   );
+
+  // Filter private methods
+  json.methods = json.methods && json.methods.filter(method => {
+    return !method.name.startsWith('_') &&
+      ignoredComponentMethodNames.indexOf(method.name) === -1;
+  });
 
   return componentsToMarkdown('component', json, filepath, n++, styleDocs);
 }
@@ -164,7 +168,7 @@ function renderAPI(type) {
     var json;
     try {
       json = jsDocs(fs.readFileSync(filepath).toString());
-    } catch(e) {
+    } catch (e) {
       console.error('Cannot parse file', filepath, e);
       json = {};
     }
@@ -180,9 +184,9 @@ function renderStyle(filepath) {
   );
 
   // Remove deprecated transform props from docs
-  if (filepath === "../Libraries/StyleSheet/TransformPropTypes.js") {
+  if (filepath === '../Libraries/StyleSheet/TransformPropTypes.js') {
     ['rotation', 'scaleX', 'scaleY', 'translateX', 'translateY'].forEach(function(key) {
-      delete json['props'][key];
+      delete json.props[key];
     });
   }
 
@@ -269,6 +273,11 @@ var stylesForEmbed = [
 
 var polyfills = [
   '../Libraries/Geolocation/Geolocation.js',
+];
+
+// Methods that are hidden from component docs.
+var ignoredComponentMethodNames = [
+  'getInnerViewNode',
 ];
 
 var all = components
