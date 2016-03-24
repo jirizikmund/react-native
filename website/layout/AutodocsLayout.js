@@ -238,17 +238,24 @@ var ComponentDoc = React.createClass({
     }
   },
 
-  renderMethods: function(methodsData) {
+  renderMethods: function(methods) {
+    if (!methods.length) {
+      return null;
+    }
+
     return (
-      <div className="props">
-        {methodsData.map(method =>
-          <Method
-            key={method.name}
-            name={method.name}
-            description={method.description}
-            params={method.params}
-            modifiers={method.modifiers}
-          />)}
+      <div>
+        <H level={3}>Methods</H>
+        <div className="props">
+          {methods.map(method =>
+            <Method
+              key={method.name}
+              name={method.name}
+              description={method.description}
+              params={method.params}
+              modifiers={method.modifiers}
+            />)}
+        </div>
       </div>
     );
   },
@@ -263,7 +270,6 @@ var ComponentDoc = React.createClass({
         </Marked>
         <H level={3}>Props</H>
         {this.renderProps(content.props, content.composes)}
-        <H level={3}>Methods</H>
         {this.renderMethods(content.methods)}
       </div>
     );

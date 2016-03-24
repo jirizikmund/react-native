@@ -37,6 +37,32 @@ var DRAWER_STATES = [
   'Settling',
 ];
 
+type PropsType = {
+  /**
+   * test
+   */
+  test: number,
+};
+
+class TestComponent extends React.Component {
+  props: PropsType;
+
+	constructor() {
+
+  }
+
+  /**
+   * Opens the drawer.
+   *
+   * @param test The test number
+   */
+  static openDrawer(test) {
+  }
+}
+
+// module.exports.TestComponent = TestComponent;
+
+
 /**
  * React component that wraps the platform `DrawerLayout` (Android only). The
  * Drawer (typically used for navigation) is rendered with `renderNavigationView`
@@ -71,6 +97,9 @@ var DRAWER_STATES = [
 var DrawerLayoutAndroid = React.createClass({
   statics: {
     positions: DrawerConsts.DrawerPosition,
+    test: function() {
+
+    },
   },
 
   propTypes: {

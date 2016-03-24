@@ -1,6 +1,7 @@
 'use strict';
 var docgen = require('react-docgen');
-var dox = require('dox');
+var recast = require('recast');
+var doctrine = require('doctrine');
 
 function stylePropTypeHandler(documentation, path) {
   var propTypesPath = docgen.utils.getMemberValuePath(path, 'propTypes');
@@ -77,6 +78,7 @@ const reactMethods = [
   'render',
   'getInitialState',
   'getDefaultProps',
+  'getChildContext',
   'componentWillMount',
   'componentDidMount',
   'componentWillReceiveProps',
@@ -86,59 +88,155 @@ const reactMethods = [
   'componentWillUnmount',
 ];
 
+const types = recast.types.namedTypes;
+
 function methodsHandler(documentation, path) {
-  const properties = path.get('properties');
-  if (properties.node.type !== 'ObjectExpression') {
+  // Extract all methods from the class or object.
+  let methodPaths;
+  if (docgen.utils.isReactComponentClass(path)) {
+    methodPaths = path
+      .get('body', 'body')
+      .filter(p => types.MethodDefinition.check(p.node) && p.node.kind !== 'constructor');
+  } else {
+    let properties = path.get('properties');
+
+    // Add the statics object properties.
+    const statics = docgen.utils.getMemberValuePath(path, 'statics');
+    if (statics) {
+      properties = properties.map(p => p).concat(statics.get('properties').map(p => p));
+    }
+
+    methodPaths = properties.filter(p => types.FunctionExpression.check(p.get('value').node));
+  }
+
+  if (!methodPaths) {
     return;
   }
-  const methods = [];
-  properties.each((propPath) => {
-    const node = propPath.node;
-    const name = docgen.utils.getPropertyName(propPath);
-    if (node.value.type !== 'FunctionExpression' || reactMethods.indexOf(name) !== -1) {
-      return;
-    }
-    const params = [];
-    propPath.get('value').get('params').each((paramPath) => {
-      const param = {
-        name: paramPath.node.name,
-      };
-      const typePath = docgen.utils.getTypeAnnotation(paramPath);
-      if (typePath) {
-        const type = docgen.utils.getFlowType(typePath);
-        param.typehint = type.name;
-      }
 
-      params.push(param);
-    });
-    const method = {
-      name: name,
-      params: params,
-    };
-    const docBlock = docgen.utils.docblock.getDocblock(propPath);
-
-    if (docBlock) {
-      const javaDoc = parseJavaDocComment(docBlock);
-      javaDoc.tags.forEach((tag) => {
-        if (tag.type === 'param') {
-          const param = params.find(p => p.name === tag.name);
-          if (param) {
-            param.description = tag.description;
-          }
-        }
-      });
-
-      method.description = javaDoc.description.full;
-    }
-
-    methods.push(method);
-  });
-
+  const methods = extractMethods(methodPaths);
   documentation.set('methods', methods);
 }
 
-function parseJavaDocComment(docBlock) {
-  return dox.parseComment(docBlock, {raw: true});
+function extractMethods(propertiesPath) {
+  const methods = [];
+
+  propertiesPath.forEach((propPath) => {
+    const name = docgen.utils.getPropertyName(propPath);
+    if (reactMethods.indexOf(name) !== -1) {
+      return;
+    }
+
+    const functionExpression = propPath.get('value');
+    const docBlock = docgen.utils.docblock.getDocblock(propPath);
+    const jsDocs = docBlock && parseJsDocBlock(docBlock);
+
+    methods.push({
+      name: name,
+      description: jsDocs && jsDocs.description,
+      modifiers: getMethodModifiers(propPath),
+      params: getMethodParamsDoc(functionExpression, jsDocs),
+      return: getMethodReturnDoc(functionExpression, jsDocs),
+    });
+  });
+
+  return methods;
+}
+
+function getMethodParamsDoc(functionPath, jsDocs) {
+  const params = [];
+
+  // Extract param flow types.
+  functionPath.get('params').each(paramPath => {
+    const param = {
+      name: paramPath.node.name,
+    };
+    const typePath = docgen.utils.getTypeAnnotation(paramPath);
+    if (typePath) {
+      const type = docgen.utils.getFlowType(typePath);
+      param.typehint = type.name;
+    }
+
+    params.push(param);
+  });
+
+  // Add jsdoc @param descriptions.
+  if (jsDocs) {
+    jsDocs.tags
+      .filter(tag => tag.title === 'param')
+      .forEach(tag => {
+        const param = params.find(p => p.name === tag.name);
+        if (param) {
+          param.description = tag.description;
+        }
+      });
+  }
+
+  return params;
+}
+
+function getMethodReturnDoc(functionPath, jsDocs) {
+  let type;
+  let description;
+
+  // Extract flow return type.
+  if (functionPath.node.returnType) {
+    const returnType = docgen.utils.getTypeAnnotation(functionPath.get('returnType'));
+    type = docgen.utils.getFlowType(returnType);
+  }
+
+  // Add jsdoc @return description.
+  if (jsDocs) {
+    const returnTag = jsDocs.tags.find(tag => tag.title === 'return');
+    if (returnTag) {
+      description = returnTag.description;
+    }
+  }
+
+  if (type || description) {
+    return {
+      type,
+      description,
+    };
+  }
+  return null;
+}
+
+function getMethodModifiers(methodPath) {
+  const modifiers = [];
+
+  if (types.MethodDefinition.check(methodPath.node) && methodPath.node.static) {
+    modifiers.push('static');
+  } else {
+    const parent = findParentProperty(methodPath, 'statics');
+    if (parent) {
+      modifiers.push('static');
+    }
+  }
+
+  const functionExpression = methodPath.get('value').node;
+  if (functionExpression.generator) {
+    modifiers.push('generator');
+  }
+  if (functionExpression.async) {
+    modifiers.push('async');
+  }
+
+  return modifiers;
+}
+
+function findParentProperty(path, name) {
+  let curPath = path;
+  while (curPath) {
+    if (types.Property.check(curPath.node) && docgen.utils.getPropertyName(curPath) === name) {
+      return curPath;
+    }
+    curPath = curPath.parentPath;
+  }
+  return null;
+}
+
+function parseJsDocBlock(docBlock) {
+  return doctrine.parse(docBlock);
 }
 
 function findExportedOrFirst(node, recast) {
