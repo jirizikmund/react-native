@@ -42,6 +42,7 @@ const ReactNative = {
   get NavigatorIOS() { return require('NavigatorIOS'); },
   get Picker() { return require('Picker'); },
   get PickerIOS() { return require('PickerIOS'); },
+  get ProgressBar() { return require('ProgressBar'); },
   get ProgressBarAndroid() { return require('ProgressBarAndroid'); },
   get ProgressViewIOS() { return require('ProgressViewIOS'); },
   get ScrollView() { return require('ScrollView'); },

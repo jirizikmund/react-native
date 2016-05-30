@@ -85,6 +85,10 @@ const ComponentExamples: Array<UIExplorerExample> = [
     module: require('./PickerIOSExample'),
   },
   {
+    key: 'ProgressBarExample',
+    module: require('./ProgressBarExample'),
+  },
+  {
     key: 'ProgressViewIOSExample',
     module: require('./ProgressViewIOSExample'),
   },
