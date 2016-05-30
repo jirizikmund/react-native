@@ -14,7 +14,7 @@
 		13456E931ADAD2DE009F94A7 /* RCTConvert+CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 13456E921ADAD2DE009F94A7 /* RCTConvert+CoreLocation.m */; };
 		13456E961ADAD482009F94A7 /* RCTConvert+MapKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 13456E951ADAD482009F94A7 /* RCTConvert+MapKit.m */; };
 		134FCB3D1A6E7F0800051CC8 /* RCTJSCExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 134FCB3A1A6E7F0800051CC8 /* RCTJSCExecutor.mm */; };
-		13513F3C1B1F43F400FCE529 /* RCTProgressViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13513F3B1B1F43F400FCE529 /* RCTProgressViewManager.m */; };
+		13513F3C1B1F43F400FCE529 /* RCTProgressBarManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13513F3B1B1F43F400FCE529 /* RCTProgressBarManager.m */; };
 		13723B501A82FD3C00F88898 /* RCTStatusBarManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13723B4F1A82FD3C00F88898 /* RCTStatusBarManager.m */; };
 		1372B70A1AB030C200659ED6 /* RCTAppState.m in Sources */ = {isa = PBXBuildFile; fileRef = 1372B7091AB030C200659ED6 /* RCTAppState.m */; };
 		137327E71AA5CF210034F82E /* RCTTabBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 137327E01AA5CF210034F82E /* RCTTabBar.m */; };
@@ -129,8 +129,8 @@
 		1345A83B1B265A0E00583190 /* RCTURLRequestHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTURLRequestHandler.h; sourceTree = "<group>"; };
 		134FCB391A6E7F0800051CC8 /* RCTJSCExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTJSCExecutor.h; sourceTree = "<group>"; };
 		134FCB3A1A6E7F0800051CC8 /* RCTJSCExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCTJSCExecutor.mm; sourceTree = "<group>"; };
-		13513F3A1B1F43F400FCE529 /* RCTProgressViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTProgressViewManager.h; sourceTree = "<group>"; };
-		13513F3B1B1F43F400FCE529 /* RCTProgressViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTProgressViewManager.m; sourceTree = "<group>"; };
+		13513F3A1B1F43F400FCE529 /* RCTProgressBarManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTProgressBarManager.h; sourceTree = "<group>"; };
+		13513F3B1B1F43F400FCE529 /* RCTProgressBarManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTProgressBarManager.m; sourceTree = "<group>"; };
 		13723B4E1A82FD3C00F88898 /* RCTStatusBarManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTStatusBarManager.h; sourceTree = "<group>"; };
 		13723B4F1A82FD3C00F88898 /* RCTStatusBarManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTStatusBarManager.m; sourceTree = "<group>"; };
 		1372B7081AB030C200659ED6 /* RCTAppState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTAppState.h; sourceTree = "<group>"; };
@@ -420,8 +420,8 @@
 				58114A141AAE854800E7D092 /* RCTPickerManager.h */,
 				58114A151AAE854800E7D092 /* RCTPickerManager.m */,
 				13442BF31AA90E0B0037E5B0 /* RCTPointerEvents.h */,
-				13513F3A1B1F43F400FCE529 /* RCTProgressViewManager.h */,
-				13513F3B1B1F43F400FCE529 /* RCTProgressViewManager.m */,
+				13513F3A1B1F43F400FCE529 /* RCTProgressBarManager.h */,
+				13513F3B1B1F43F400FCE529 /* RCTProgressBarManager.m */,
 				191E3EBF1C29DC3800C180A6 /* RCTRefreshControl.h */,
 				191E3EC01C29DC3800C180A6 /* RCTRefreshControl.m */,
 				191E3EBC1C29D9AF00C180A6 /* RCTRefreshControlManager.h */,
@@ -692,7 +692,7 @@
 				13AF20451AE707F9005F5298 /* RCTSlider.m in Sources */,
 				58114A501AAE93D500E7D092 /* RCTAsyncLocalStorage.m in Sources */,
 				832348161A77A5AA00B55238 /* Layout.c in Sources */,
-				13513F3C1B1F43F400FCE529 /* RCTProgressViewManager.m in Sources */,
+				13513F3C1B1F43F400FCE529 /* RCTProgressBarManager.m in Sources */,
 				14F7A0F01BDA714B003C6C10 /* RCTFPSGraph.m in Sources */,
 				14F3620D1AABD06A001CE568 /* RCTSwitch.m in Sources */,
 				3D1E68DB1CABD13900DD7465 /* RCTDisplayLink.m in Sources */,

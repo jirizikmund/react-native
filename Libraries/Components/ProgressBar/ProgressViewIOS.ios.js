@@ -22,6 +22,8 @@ var requireNativeComponent = require('requireNativeComponent');
 
 /**
  * Use `ProgressViewIOS` to render a UIProgressView on iOS.
+ *
+ * Deprecated. Use `ProgressBar` instead.
  */
 var ProgressViewIOS = React.createClass({
   mixins: [NativeMethodsMixin],
@@ -59,10 +61,16 @@ var ProgressViewIOS = React.createClass({
     trackImage: Image.propTypes.source,
   },
 
+  componentDidMount: function() {
+    console.warn('`ProgressViewIOS is deprecated. Use `ProgressBar` instead.`');
+  },
+
   render: function() {
     return (
       <RCTProgressView
         {...this.props}
+        color={this.props.progressTintColor}
+        progressBarStyle={this.props.progressViewStyle}
         style={[styles.progressView, this.props.style]}
       />
     );

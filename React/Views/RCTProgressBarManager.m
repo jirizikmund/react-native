@@ -7,11 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "RCTProgressViewManager.h"
+#import "RCTProgressBarManager.h"
 
 #import "RCTConvert.h"
 
-@implementation RCTConvert (RCTProgressViewManager)
+@implementation RCTConvert (RCTProgressBarManager)
 
 RCT_ENUM_CONVERTER(UIProgressViewStyle, (@{
   @"default": @(UIProgressViewStyleDefault),
@@ -20,7 +20,7 @@ RCT_ENUM_CONVERTER(UIProgressViewStyle, (@{
 
 @end
 
-@implementation RCTProgressViewManager
+@implementation RCTProgressBarManager
 
 RCT_EXPORT_MODULE()
 
@@ -29,9 +29,9 @@ RCT_EXPORT_MODULE()
   return [UIProgressView new];
 }
 
-RCT_EXPORT_VIEW_PROPERTY(progressViewStyle, UIProgressViewStyle)
+RCT_REMAP_VIEW_PROPERTY(progressBarStyle, progressViewStyle, UIProgressViewStyle)
 RCT_EXPORT_VIEW_PROPERTY(progress, float)
-RCT_EXPORT_VIEW_PROPERTY(progressTintColor, UIColor)
+RCT_REMAP_VIEW_PROPERTY(color, progressTintColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(trackTintColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(progressImage, UIImage)
 RCT_EXPORT_VIEW_PROPERTY(trackImage, UIImage)

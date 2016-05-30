@@ -44,6 +44,8 @@ var indeterminateType = function(props, propName, componentName) {
  * React component that wraps the Android-only `ProgressBar`. This component is used to indicate
  * that the app is loading or there is some activity in the app.
  *
+ * Deprecated. Use `ProgressBar` or `ActivityIndicator` instead.
+ *
  * Example:
  *
  * ```
@@ -107,12 +109,11 @@ var ProgressBarAndroid = React.createClass({
   mixins: [NativeMethodsMixin],
 
   componentDidMount: function() {
-    if (this.props.indeterminate && this.props.styleAttr !== 'Horizontal') {
-      console.warn(
-        'Circular indeterminate `ProgressBarAndroid`' +
-        'is deprecated. Use `ActivityIndicator` instead.'
-      );
-    }
+    console.warn(
+      '`ProgressBarAndroid` is deprecated. Use `ActivityIndicator` to display' +
+      'a circular indeterminate loading indicator or `ProgressBar` to display' +
+      'a progress bar.'
+    );
   },
 
   render: function() {

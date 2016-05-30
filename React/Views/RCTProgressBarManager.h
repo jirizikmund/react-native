@@ -9,6 +9,6 @@
 
 #import "RCTViewManager.h"
 
-@interface RCTProgressViewManager : RCTViewManager
+@interface RCTProgressBarManager : RCTViewManager
 
 @end

@@ -16,7 +16,6 @@ const NativeMethodsMixin = require('NativeMethodsMixin');
 const Platform = require('Platform');
 const PropTypes = require('ReactPropTypes');
 const React = require('React');
-const StyleSheet = require('StyleSheet');
 const View = require('View');
 
 const requireNativeComponent = require('requireNativeComponent');
@@ -31,11 +30,6 @@ const ProgressBar = React.createClass({
     ...View.propTypes,
 
     /**
-     * The progress bar style.
-     */
-    progressViewStyle: PropTypes.oneOf(['default', 'bar']),
-
-    /**
      * The progress value (between 0 and 1).
      */
     progress: PropTypes.number,
@@ -44,6 +38,13 @@ const ProgressBar = React.createClass({
      * The tint color of the progress bar.
      */
     color: PropTypes.string,
+
+    /**
+     * The progress bar style.
+     *
+     * @platform ios
+     */
+    progressBarStyle: PropTypes.oneOf(['default', 'bar']),
 
     /**
      * The tint color of the progress bar track.
@@ -67,8 +68,7 @@ const ProgressBar = React.createClass({
     trackImage: Image.propTypes.source,
 
     /**
-     * If the progress bar will show indeterminate progress. Note that this
-     * can only be false if styleAttr is Horizontal.
+     * If the progress bar will show indeterminate progress.
      *
      * @platform android
      */
@@ -87,22 +87,15 @@ const ProgressBar = React.createClass({
       <RCTProgressBar
         {...this.props}
         styleAttr="Horizontal"
-        style={[styles.progressView, this.props.style]}
       />
     );
-  },
-});
-
-const styles = StyleSheet.create({
-  progressView: {
-    height: Platform.OS === 'ios' ? 2 : null,
   },
 });
 
 let RCTProgressBar;
 if (Platform.OS === 'ios') {
   RCTProgressBar = requireNativeComponent(
-    'RCTProgressView',
+    'RCTProgressBar',
     ProgressBar,
   );
 } else if (Platform.OS === 'android') {

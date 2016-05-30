@@ -17,8 +17,6 @@
 
 const ProgressBar = require('ProgressBar');
 const React = require('React');
-const UIExplorerBlock = require('UIExplorerBlock');
-const UIExplorerPage = require('UIExplorerPage');
 
 const TimerMixin = require('react-timer-mixin');
 
@@ -49,14 +47,14 @@ exports.title = '<ProgressBar>';
 exports.description = 'Horizontal bar to show the progress of some operation.';
 exports.displayName = 'ProgressBarExample';
 exports.examples = [{
-  title: 'ProgressBar',
+  title: 'Default ProgressBar',
   render() {
     return <MovingBar />;
   },
 }, {
-  title: 'Blue ProgressBar',
+  title: 'Red ProgressBar',
   render() {
-    return <MovingBar color="blue" />;
+    return <MovingBar color="red" progressViewStyle="bar" />;
   },
 }, {
   title: 'Indeterminate',
