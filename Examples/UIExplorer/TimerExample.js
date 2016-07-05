@@ -34,7 +34,7 @@ function burnCPU(milliseconds) {
 }
 
 var RequestIdleCallbackTester = React.createClass({
-  _idleTimer: null,
+  _idleTimer: (null: any),
   _iters: 0,
 
   getInitialState() {
