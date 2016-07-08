@@ -58,6 +58,7 @@
 @implementation RCTTiming
 {
   NSMutableDictionary<NSNumber *, RCTTimer *> *_timers;
+  BOOL _sendIdleEvents;
 }
 
 @synthesize bridge = _bridge;
@@ -116,7 +117,7 @@ RCT_EXPORT_MODULE()
 
 - (void)startTimers
 {
-  if (!_bridge || _timers.count == 0) {
+  if (!_bridge || (_timers.count == 0 && !_sendIdleEvents)) {
     return;
   }
 
@@ -150,7 +151,15 @@ RCT_EXPORT_MODULE()
     [_bridge enqueueJSCall:@"JSTimersExecution.callTimers" args:@[timersToCall]];
   }
 
-  if (_timers.count == 0) {
+  if (_sendIdleEvents) {
+    NSTimeInterval frameElapsed = CACurrentMediaTime() - update.timestamp;
+    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    NSNumber *absoluteFrameStartMillis = [NSNumber numberWithDouble:(currentTimestamp - frameElapsed) * 1000];
+
+    [_bridge enqueueJSCall:@"JSTimersExecution.callIdleCallbacks" args:@[absoluteFrameStartMillis]];
+  }
+
+  if (_timers.count == 0 && !_sendIdleEvents) {
     [self stopTimers];
   }
 }
@@ -191,7 +200,17 @@ RCT_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
 RCT_EXPORT_METHOD(deleteTimer:(nonnull NSNumber *)timerID)
 {
   [_timers removeObjectForKey:timerID];
-  if (_timers.count == 0) {
+  if (_timers.count == 0 && !_sendIdleEvents) {
+    [self stopTimers];
+  }
+}
+
+RCT_EXPORT_METHOD(sendIdleEvents:(BOOL)shouldSend)
+{
+  _sendIdleEvents = shouldSend;
+  if (shouldSend) {
+    [self startTimers];
+  } else if (_timers.count == 0) {
     [self stopTimers];
   }
 }
