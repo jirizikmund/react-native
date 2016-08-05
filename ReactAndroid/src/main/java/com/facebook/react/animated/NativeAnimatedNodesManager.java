@@ -14,13 +14,20 @@ import android.util.SparseArray;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.UIImplementation;
+import com.facebook.react.uimanager.events.Event;
+import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.uimanager.events.EventDispatcherListener;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import javax.annotation.Nullable;
@@ -38,16 +45,18 @@ import javax.annotation.Nullable;
  *
  * IMPORTANT: This class should be accessed only from the UI Thread
  */
-/*package*/ class NativeAnimatedNodesManager {
+/*package*/ class NativeAnimatedNodesManager implements EventDispatcherListener {
 
   private final SparseArray<AnimatedNode> mAnimatedNodes = new SparseArray<>();
   private final ArrayList<AnimationDriver> mActiveAnimations = new ArrayList<>();
   private final ArrayList<AnimatedNode> mUpdatedNodes = new ArrayList<>();
+  private final Map<String, EventAnimationDriver> mEventDrivers = new HashMap<>();
   private final UIImplementation mUIImplementation;
   private int mAnimatedGraphBFSColor = 0;
 
-  public NativeAnimatedNodesManager(UIImplementation uiImplementation) {
+  public NativeAnimatedNodesManager(UIImplementation uiImplementation, EventDispatcher eventDispatcher) {
     mUIImplementation = uiImplementation;
+    eventDispatcher.addListener(this);
   }
 
   /*package*/ @Nullable AnimatedNode getNodeById(int id) {
@@ -232,6 +241,42 @@ import javax.annotation.Nullable;
         "not been connected with the given animated node");
     }
     propsAnimatedNode.mConnectedViewTag = -1;
+  }
+
+  public void addAnimatedEventToView(int viewTag, String eventName, ReadableMap eventMapping) {
+    int nodeTag = eventMapping.getInt("animatedValueTag");
+    AnimatedNode node = mAnimatedNodes.get(nodeTag);
+    if (node == null) {
+      throw new JSApplicationIllegalArgumentException("Animated node with tag " + nodeTag +
+        " does not exists");
+    }
+    if (!(node instanceof ValueAnimatedNode)) {
+      throw new JSApplicationIllegalArgumentException("Animated node connected to event should be" +
+        "of type " + ValueAnimatedNode.class.getName());
+    }
+
+    ReadableArray path = eventMapping.getArray("nativeEventPath");
+    List<String> pathList = new ArrayList<>(path.size());
+    for (int i = 0; i < path.size(); i++) {
+      pathList.add(path.getString(i));
+    }
+
+    EventAnimationDriver event = new EventAnimationDriver(pathList, (ValueAnimatedNode) node);
+    mEventDrivers.put(viewTag + eventName, event);
+  }
+
+  public void removeAnimatedEventFromView(int viewTag, String eventName) {
+    mEventDrivers.remove(viewTag + eventName);
+  }
+
+  @Override
+  public void onEventDispatched(Event event) {
+    if (!mEventDrivers.isEmpty() && mEventDrivers.containsKey(event.getViewTag() + event.getEventName())) {
+      UiThreadUtil.assertOnUiThread();
+      EventAnimationDriver eventDriver = mEventDrivers.get(event.getViewTag() + event.getEventName());
+      event.dispatch(eventDriver);
+      mUpdatedNodes.add(eventDriver.mValueNode);
+    }
   }
 
   /**

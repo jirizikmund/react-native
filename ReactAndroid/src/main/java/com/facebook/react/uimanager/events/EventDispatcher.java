@@ -92,6 +92,7 @@ public class EventDispatcher implements LifecycleEventListener {
   private final Map<String, Short> mEventNameToEventId = MapBuilder.newHashMap();
   private final DispatchEventsRunnable mDispatchEventsRunnable = new DispatchEventsRunnable();
   private final ArrayList<Event> mEventStaging = new ArrayList<>();
+  private final ArrayList<EventDispatcherListener> mListeners = new ArrayList<>();
 
   private Event[] mEventsToDispatch = new Event[16];
   private int mEventsToDispatchSize = 0;
@@ -129,6 +130,24 @@ public class EventDispatcher implements LifecycleEventListener {
       // touch event dispatch will hit this codepath, and we simply queue them so that they
       // are dispatched once ReactContext creation completes and JS app is running.
     }
+
+    for (EventDispatcherListener listener : mListeners) {
+      listener.onEventDispatched(event);
+    }
+  }
+
+  /**
+   * Add a listener to this EventDispatcher.
+   */
+  public void addListener(EventDispatcherListener listener) {
+    mListeners.add(listener);
+  }
+
+  /**
+   * Remove a listener from this EventDispatcher.
+   */
+  public void removeListener(EventDispatcherListener listener) {
+    mListeners.remove(listener);
   }
 
   @Override

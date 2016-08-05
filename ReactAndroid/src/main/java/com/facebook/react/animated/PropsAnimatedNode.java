@@ -9,6 +9,8 @@
 
 package com.facebook.react.animated;
 
+import android.util.Log;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;

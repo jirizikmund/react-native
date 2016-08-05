@@ -31,6 +31,10 @@ export type UIExplorerExample = {
 
 var ComponentExamples: Array<UIExplorerExample> = [
   {
+    key: 'NativeAnimatedEvent',
+    module: require('./NativeAnimatedEventExample'),
+  },
+  {
     key: 'ActivityIndicatorExample',
     module: require('./ActivityIndicatorExample'),
   },
