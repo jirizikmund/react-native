@@ -1509,6 +1509,7 @@ function createAnimatedComponent(Component: any): any {
 
     componentWillUnmount() {
       this._propsAnimated && this._propsAnimated.__detach();
+      this._detachNativeEvents(this.props);
     }
 
     setNativeProps(props) {
@@ -1516,17 +1517,19 @@ function createAnimatedComponent(Component: any): any {
     }
 
     componentWillMount() {
-      this.attachProps(this.props);
+      this._attachProps(this.props);
     }
 
     componentDidMount() {
       this._propsAnimated.setNativeView(this._component);
 
-      this.attachNativeEvents(this.props);
+      this._attachNativeEvents(this.props);
     }
 
-    attachNativeEvents(nextProps) {
-      // TODO: Make sure we remove events properly.
+    _attachNativeEvents(newProps) {
+      if (newProps !== this.props) {
+        this._detachNativeEvents(this.props);
+      }
 
       // Make sure to get the scrollable node for components that implement
       // `ScrollResponder.Mixin`.
@@ -1534,15 +1537,30 @@ function createAnimatedComponent(Component: any): any {
         this._component.getScrollableNode() :
         this._component;
 
-      for (let key in nextProps) {
-        const prop = nextProps[key];
+      for (let key in newProps) {
+        const prop = newProps[key];
         if (prop instanceof AnimatedEvent && prop.__isNative) {
           prop.__attach(ref, key);
         }
       }
     }
 
-    attachProps(nextProps) {
+    _detachNativeEvents(props) {
+      // Make sure to get the scrollable node for components that implement
+      // `ScrollResponder.Mixin`.
+      const ref = this._component.getScrollableNode ?
+        this._component.getScrollableNode() :
+        this._component;
+
+      for (let key in props) {
+        const prop = props[key];
+        if (prop instanceof AnimatedEvent && prop.__isNative) {
+          prop.__detach(ref, key);
+        }
+      }
+    }
+
+    _attachProps(nextProps) {
       var oldPropsAnimated = this._propsAnimated;
 
       // The system is best designed when setNativeProps is implemented. It is
@@ -1588,7 +1606,8 @@ function createAnimatedComponent(Component: any): any {
     }
 
     componentWillReceiveProps(nextProps) {
-      this.attachProps(nextProps);
+      this._attachProps(nextProps);
+      this._attachNativeEvents(nextProps);
     }
 
     render() {
