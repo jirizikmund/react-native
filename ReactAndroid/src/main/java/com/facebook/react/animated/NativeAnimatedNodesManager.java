@@ -11,6 +11,7 @@ package com.facebook.react.animated;
 
 import android.util.SparseArray;
 
+import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
@@ -19,6 +20,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.UIImplementation;
+import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.uimanager.events.EventDispatcherListener;
@@ -51,12 +53,15 @@ import javax.annotation.Nullable;
   private final ArrayList<AnimationDriver> mActiveAnimations = new ArrayList<>();
   private final ArrayList<AnimatedNode> mUpdatedNodes = new ArrayList<>();
   private final Map<String, EventAnimationDriver> mEventDrivers = new HashMap<>();
+  private final Map<String, Map<String, String>> mCustomEventTypes;
   private final UIImplementation mUIImplementation;
   private int mAnimatedGraphBFSColor = 0;
 
-  public NativeAnimatedNodesManager(UIImplementation uiImplementation, EventDispatcher eventDispatcher) {
-    mUIImplementation = uiImplementation;
-    eventDispatcher.addListener(this);
+  public NativeAnimatedNodesManager(UIManagerModule uiManager) {
+    mUIImplementation = uiManager.getUIImplementation();
+    uiManager.getEventDispatcher().addListener(this);
+    Object customEventTypes = Assertions.assertNotNull(uiManager.getConstants()).get("customDirectEventTypes");
+    mCustomEventTypes = (Map<String, Map<String, String>>) customEventTypes;
   }
 
   /*package*/ @Nullable AnimatedNode getNodeById(int id) {
@@ -271,11 +276,24 @@ import javax.annotation.Nullable;
 
   @Override
   public void onEventDispatched(Event event) {
-    if (!mEventDrivers.isEmpty() && mEventDrivers.containsKey(event.getViewTag() + event.getEventName())) {
-      UiThreadUtil.assertOnUiThread();
-      EventAnimationDriver eventDriver = mEventDrivers.get(event.getViewTag() + event.getEventName());
-      event.dispatch(eventDriver);
-      mUpdatedNodes.add(eventDriver.mValueNode);
+    // Only support events dispatched from the UI thread.
+    if (!UiThreadUtil.isOnUiThread()) {
+      return;
+    }
+
+    if (!mEventDrivers.isEmpty()) {
+      // If the event has a different name in native convert it to it's JS name.
+      String eventName = event.getEventName();
+      Map<String, String> customEventType = mCustomEventTypes.get(eventName);
+      if (customEventType != null) {
+        eventName = customEventType.get("registrationName");
+      }
+      
+      EventAnimationDriver eventDriver = mEventDrivers.get(event.getViewTag() + eventName);
+      if (eventDriver != null) {
+        event.dispatch(eventDriver);
+        mUpdatedNodes.add(eventDriver.mValueNode);
+      }
     }
   }
 

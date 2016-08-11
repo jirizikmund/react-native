@@ -94,12 +94,9 @@ public class NativeAnimatedModule extends ReactContextBaseJavaModule implements
     mReactChoreographer = ReactChoreographer.getInstance();
 
     ReactApplicationContext reactCtx = getReactApplicationContext();
-    UIImplementation uiImplementation =
-      reactCtx.getNativeModule(UIManagerModule.class).getUIImplementation();
-    EventDispatcher eventDispatcher = reactCtx.getNativeModule(UIManagerModule.class).getEventDispatcher();
+    UIManagerModule uiManager = reactCtx.getNativeModule(UIManagerModule.class);
 
-    final NativeAnimatedNodesManager nodesManager =
-      new NativeAnimatedNodesManager(uiImplementation, eventDispatcher);
+    final NativeAnimatedNodesManager nodesManager = new NativeAnimatedNodesManager(uiManager);
     mAnimatedFrameCallback = new GuardedChoreographerFrameCallback(reactCtx) {
       @Override
       protected void doFrameGuarded(final long frameTimeNanos) {

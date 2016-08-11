@@ -1537,11 +1537,6 @@ function createAnimatedComponent(Component: any): any {
       for (let key in nextProps) {
         const prop = nextProps[key];
         if (prop instanceof AnimatedEvent && prop.__isNative) {
-          // TODO: Map event names using the map in UIManager.
-          if (key === 'onScroll') {
-            key = 'topScroll';
-          }
-
           prop.__attach(ref, key);
         }
       }
