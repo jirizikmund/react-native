@@ -81,6 +81,7 @@ var API = {
  */
 var PROPS_WHITELIST = {
   style: {
+    backgroundColor: true,
     opacity: true,
     transform: true,
     /* legacy android transform properties */

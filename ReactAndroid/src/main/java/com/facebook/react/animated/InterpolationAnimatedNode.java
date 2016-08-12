@@ -53,7 +53,8 @@ import javax.annotation.Nullable;
       double outputMin,
       double outputMax,
       ExtrapolateType extrapolateLeft,
-      ExtrapolateType extrapolateRight) {
+      ExtrapolateType extrapolateRight
+  ) {
     double result = value;
 
     // Extrapolate
@@ -85,6 +86,11 @@ import javax.annotation.Nullable;
       (result - inputMin) / (inputMax - inputMin);
   }
 
+  /* package */ enum OutputType {
+    NUMBER,
+    COLOR;
+  }
+
   /*package*/ static double interpolate(
       double value,
       double[] inputRange,
@@ -113,10 +119,63 @@ import javax.annotation.Nullable;
     return index - 1;
   }
 
+  private static double interpolateColor(
+      double value,
+      double[] inputRange,
+      double[] outputRange,
+      ExtrapolateType extrapolateLeft,
+      ExtrapolateType extrapolateRight
+  ) {
+    int rangeIndex = findRangeIndex(value, inputRange);
+    return interpolateColor(
+      value,
+      inputRange[rangeIndex],
+      inputRange[rangeIndex + 1],
+      outputRange[rangeIndex],
+      outputRange[rangeIndex + 1],
+      extrapolateLeft,
+      extrapolateRight);
+  }
+
+  private static double interpolateColor(
+      double value,
+      double inputMin,
+      double inputMax,
+      double outputMin,
+      double outputMax,
+      ExtrapolateType extrapolateLeft,
+      ExtrapolateType extrapolateRight
+  ) {
+    int outputMinInt = (int) outputMin;
+    int minB = outputMinInt & 0x000000ff;
+    int minG = (outputMinInt & 0x0000ff00) >> 8;
+    int minR = (outputMinInt & 0x00ff0000) >> 16;
+    int minA = (outputMinInt & 0xff000000) >> 24;
+
+    int outputMaxInt = (int) outputMax;
+    int maxB = outputMaxInt & 0x000000ff;
+    int maxG = (outputMaxInt & 0x0000ff00) >> 8;
+    int maxR = (outputMaxInt & 0x00ff0000) >> 16;
+    int maxA = (outputMaxInt & 0xff000000) >> 24;
+
+    int resultB = (int) interpolate(value, inputMin, inputMax, minB, maxB, extrapolateLeft, extrapolateRight);
+    int resultG = (int) interpolate(value, inputMin, inputMax, minG, maxG, extrapolateLeft, extrapolateRight);
+    int resultR = (int) interpolate(value, inputMin, inputMax, minR, maxR, extrapolateLeft, extrapolateRight);
+    int resultA = (int) interpolate(value, inputMin, inputMax, minA, maxA, extrapolateLeft, extrapolateRight);
+
+    int result = resultB;
+    result |= resultG << 8;
+    result |= resultR << 16;
+    result |= resultA << 24;
+
+    return result;
+  }
+
   private final double mInputRange[];
   private final double mOutputRange[];
   private final ExtrapolateType mExtrapolateLeft;
   private final ExtrapolateType mExtrapolateRight;
+  private final OutputType mOutputType;
   private @Nullable ValueAnimatedNode mParent;
 
   public InterpolationAnimatedNode(ReadableMap config) {
@@ -124,6 +183,7 @@ import javax.annotation.Nullable;
     mOutputRange = fromDoubleArray(config.getArray("outputRange"));
     mExtrapolateLeft = ExtrapolateType.fromString(config.getString("extrapolateLeft"));
     mExtrapolateRight = ExtrapolateType.fromString(config.getString("extrapolateRight"));
+    mOutputType = config.getString("outputType").equals("color") ? OutputType.COLOR : OutputType.NUMBER;
   }
 
   @Override
@@ -151,6 +211,10 @@ import javax.annotation.Nullable;
       throw new IllegalStateException("Trying to update interpolation node that has not been " +
         "attached to the parent");
     }
-    mValue = interpolate(mParent.mValue, mInputRange, mOutputRange, mExtrapolateLeft, mExtrapolateRight);
+    if (mOutputType == OutputType.COLOR) {
+      mValue = interpolateColor(mParent.mValue, mInputRange, mOutputRange, mExtrapolateLeft, mExtrapolateRight);
+    } else {
+      mValue = interpolate(mParent.mValue, mInputRange, mOutputRange, mExtrapolateLeft, mExtrapolateRight);
+    }
   }
 }

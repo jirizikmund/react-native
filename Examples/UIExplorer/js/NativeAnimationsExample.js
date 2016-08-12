@@ -128,6 +128,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     backgroundColor: 'blue',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
@@ -307,6 +309,31 @@ exports.examples = [
                       })
                     }
                   ],
+                }
+              ]}
+            />
+          )}
+        </Tester>
+      );
+    },
+  },
+  {
+    title: 'Color interpolation',
+    render: function() {
+      return (
+        <Tester
+          type="timing"
+          config={{ duration: 1000 }}
+        >
+          {anim => (
+            <Animated.View
+              style={[
+                styles.block,
+                {
+                  backgroundColor: anim.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: ['blue', 'cyan', 'purple'],
+                  }),
                 }
               ]}
             />

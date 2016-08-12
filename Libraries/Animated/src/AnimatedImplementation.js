@@ -23,6 +23,7 @@ var NativeAnimatedHelper = require('NativeAnimatedHelper');
 var findNodeHandle = require('react/lib/findNodeHandle');
 var flattenStyle = require('flattenStyle');
 var invariant = require('fbjs/lib/invariant');
+var processColor = require('processColor');
 var requestAnimationFrame = require('fbjs/lib/requestAnimationFrame');
 
 import type { InterpolationConfigType } from 'Interpolation';
@@ -1060,10 +1061,18 @@ class AnimatedInterpolation extends AnimatedWithChildren {
       NativeAnimatedHelper.validateInterpolation(this._config);
     }
 
+    let outputType = 'number';
+    let outputRange = this._config.outputRange;
+    if (typeof outputRange[0] === 'string' && processColor(outputRange[0]) !== null) {
+      outputRange = this._config.outputRange.map(processColor);
+      outputType = 'color';
+    }
+
     return {
       inputRange: this._config.inputRange,
       // Only the `outputRange` can contain strings so we don't need to tranform `inputRange` here
-      outputRange: this.__transformDataType(this._config.outputRange),
+      outputRange,
+      outputType,
       extrapolateLeft: this._config.extrapolateLeft || this._config.extrapolate || 'extend',
       extrapolateRight: this._config.extrapolateRight || this._config.extrapolate || 'extend',
       type: 'interpolation',

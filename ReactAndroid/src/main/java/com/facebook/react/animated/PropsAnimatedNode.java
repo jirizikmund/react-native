@@ -61,7 +61,7 @@ import javax.annotation.Nullable;
         propsMap.putDouble(entry.getKey(), ((ValueAnimatedNode) node).mValue);
       } else {
         throw new IllegalArgumentException("Unsupported type of node used in property node " +
-            node.getClass());
+          node.getClass());
       }
     }
     // TODO: Reuse propsMap and stylesDiffMap objects - note that in subsequent animation steps

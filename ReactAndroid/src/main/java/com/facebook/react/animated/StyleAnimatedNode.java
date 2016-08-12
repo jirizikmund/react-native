@@ -46,7 +46,15 @@ import javax.annotation.Nullable;
       } else if (node instanceof TransformAnimatedNode) {
         ((TransformAnimatedNode) node).collectViewUpdates(propsMap);
       } else if (node instanceof ValueAnimatedNode) {
-        propsMap.putDouble(entry.getKey(), ((ValueAnimatedNode) node).mValue);
+        String key = entry.getKey();
+        switch (key) {
+          case "backgroundColor":
+            propsMap.putInt(entry.getKey(), (int) ((ValueAnimatedNode) node).mValue);
+            break;
+          default:
+            propsMap.putDouble(entry.getKey(), ((ValueAnimatedNode) node).mValue);
+            break;
+        }
       } else {
         throw new IllegalArgumentException("Unsupported type of node used in property node " +
           node.getClass());
