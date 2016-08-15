@@ -32,7 +32,8 @@ var {
   Image,
 } = ReactNative;
 
-const NAVBAR_HEIGHT = 62;
+const NAVBAR_HEIGHT = 56;
+const NAVBAR_MAX_TRANSLATE = NAVBAR_HEIGHT + 8;
 
 const styles = StyleSheet.create({
   row: {
@@ -92,33 +93,57 @@ class EventExample extends React.Component {
     showAnim: new Animated.Value(0),
   };
 
-  _lastScrollYValue = 0;
-  _scrollYValue = 0;
+  _navbarTranslate = 0;
+  _lastNavbarTranslate = 0;
   _showAnimValue = 0;
-  _scroll = 0;
+  _scrollYValue = 0;
+  _hasMomentum = false;
+  _scrollEndTimer: any;
 
   componentWillMount() {
     this.state.scrollY.addListener((ev) => {
-      this._scroll = ev.value * -1;
-      const value = this._scroll + this._showAnimValue;
-      const diff = value - this._lastScrollYValue;
-      this._lastScrollYValue = value;
-      this._scrollYValue = Math.min(Math.max(this._scrollYValue + diff, -NAVBAR_HEIGHT), 0);
+      this._scrollYValue = ev.value;
+      this._updateNavbarTranslate();
     });
     this.state.showAnim.addListener((ev) => {
       this._showAnimValue = ev.value;
-      const value = this._scroll + this._showAnimValue;
-      const diff = value - this._lastScrollYValue;
-      this._lastScrollYValue = value;
-      this._scrollYValue = Math.min(Math.max(this._scrollYValue + diff, -NAVBAR_HEIGHT), 0);
+      this._updateNavbarTranslate();
     });
   }
 
+  _updateNavbarTranslate = () => {
+    const value = this._scrollYValue * -1 + this._showAnimValue;
+    const diff = value - this._lastNavbarTranslate;
+    this._lastNavbarTranslate = value;
+    this._navbarTranslate = Math.min(Math.max(this._navbarTranslate + diff, -NAVBAR_MAX_TRANSLATE), 0);
+  };
+
+  _onMomentumScrollBegin = () => {
+    this._hasMomentum = true;
+  }
+
+  _onMomentumScrollEnd = () => {
+    clearTimeout(this._scrollEndTimer);
+    this._hasMomentum = false;
+    this._onScrollEnd();
+  };
+
+  _onScrollEndDrag = () => {
+    // `onMomentumScrollEnd` is not always called so wait a little bit to check
+    // if there is momentum scrolling and if there is adjust navbar in
+    // `onMomentumScrollEnd` instead.
+    clearTimeout(this._scrollEndTimer);
+    this._scrollEndTimer = setTimeout(() => {
+      if (!this._hasMomentum) {
+        this._onScrollEnd();
+      }
+    }, 250);
+  };
+
   _onScrollEnd = () => {
-    const value = this._showAnimValue;
-    const toValue = this._scrollYValue > -NAVBAR_HEIGHT / 2 || this._scroll > -NAVBAR_HEIGHT ?
-      value + NAVBAR_HEIGHT :
-      value - NAVBAR_HEIGHT;
+    const toValue = this._navbarTranslate > -NAVBAR_MAX_TRANSLATE / 2 || this._scrollYValue < NAVBAR_MAX_TRANSLATE ?
+      this._showAnimValue + NAVBAR_MAX_TRANSLATE :
+      this._showAnimValue - NAVBAR_MAX_TRANSLATE;
     Animated.timing(this.state.showAnim, {
       toValue,
       duration: 200,
@@ -139,7 +164,7 @@ class EventExample extends React.Component {
         this.state.showAnim,
         Animated.multiply(this.state.scrollY, -1),
       ),
-      -NAVBAR_HEIGHT,
+      -NAVBAR_MAX_TRANSLATE,
       0
     );
     return (
@@ -152,8 +177,9 @@ class EventExample extends React.Component {
             [{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }],
             { useNativeDriver: false }
           )}
-          onMomentumScrollEnd={this._onScrollEnd}
-          onScrollEndDrag={this._onScrollEnd}
+          onMomentumScrollBegin={this._onMomentumScrollBegin}
+          onMomentumScrollEnd={this._onMomentumScrollEnd}
+          onScrollEndDrag={this._onScrollEndDrag}
         >
           <Text style={styles.name}>Title</Text>
           {this._renderContent()}
@@ -164,7 +190,7 @@ class EventExample extends React.Component {
             source={{ uri: 'https://www.android.com/static/img/map/back-arrow.png' }}
           />
           <Text style={styles.title}>
-            Doogy
+            Title
           </Text>
           <View style={styles.rightButton} />
         </Animated.View>
