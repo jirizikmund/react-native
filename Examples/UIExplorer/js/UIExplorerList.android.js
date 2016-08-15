@@ -35,6 +35,10 @@ var ComponentExamples: Array<UIExplorerExample> = [
     module: require('./NativeAnimatedEventExample'),
   },
   {
+    key: 'CollapsibleNavbar',
+    module: require('./CollapsibleNavbarExample'),
+  },
+  {
     key: 'ActivityIndicatorExample',
     module: require('./ActivityIndicatorExample'),
   },
