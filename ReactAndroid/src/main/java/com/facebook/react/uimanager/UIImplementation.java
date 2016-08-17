@@ -789,4 +789,8 @@ public class UIImplementation {
   public void addUIBlock(UIBlock block) {
     mOperationsQueue.enqueueUIBlock(block);
   }
+
+  public ViewManager getViewManager(String name) {
+    return mViewManagers.get(name);
+  }
 }

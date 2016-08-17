@@ -9,13 +9,9 @@
 
 package com.facebook.react.views.scroll;
 
-import javax.annotation.Nullable;
-
-import java.lang.reflect.Field;
-
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,12 +21,23 @@ import android.view.View;
 import android.widget.OverScroller;
 import android.widget.ScrollView;
 
+import com.facebook.infer.annotation.Assertions;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.uimanager.MeasureSpecAssertions;
+import com.facebook.react.uimanager.ReactHitTestView;
+import com.facebook.react.uimanager.TouchTargetHelper;
+import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.views.view.ReactClippingViewGroup;
 import com.facebook.react.views.view.ReactClippingViewGroupHelper;
-import com.facebook.infer.annotation.Assertions;
+import com.facebook.react.views.view.ReactViewGroup;
+import com.facebook.react.views.view.ReactViewManager;
+
+import java.lang.reflect.Field;
+
+import javax.annotation.Nullable;
 
 /**
  * A simple subclass of ScrollView that doesn't dispatch measure and layout to its children and has
@@ -39,7 +46,7 @@ import com.facebook.infer.annotation.Assertions;
  * <p>ReactScrollView only supports vertical scrolling. For horizontal scrolling,
  * use {@link ReactHorizontalScrollView}.
  */
-public class ReactScrollView extends ScrollView implements ReactClippingViewGroup {
+public class ReactScrollView extends ScrollView implements ReactClippingViewGroup, ReactHitTestView {
 
   private static Field sScrollerField;
   private static boolean sTriedToGetScrollerField = false;
@@ -58,13 +65,28 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
   private @Nullable String mScrollPerfTag;
   private @Nullable Drawable mEndBackground;
   private int mEndFillColor = Color.TRANSPARENT;
+  private @Nullable int[] mStickyHeaderIndices;
+  private @Nullable View mCurrentStickyHeader;
+  private ReactViewManager mViewManager;
 
-  public ReactScrollView(Context context) {
+  private final ReactViewGroup.ChildDrawingOrderDelegate mContentDrawingOrderDelegate =
+    new ReactViewGroup.ChildDrawingOrderDelegate() {
+      @Override
+      public int getChildDrawingOrder(ReactViewGroup viewGroup, int drawingIndex) {
+        return viewGroup.getChildCount() - drawingIndex - 1;
+      }
+    };
+
+  public ReactScrollView(ReactContext context) {
     this(context, null);
   }
 
-  public ReactScrollView(Context context, @Nullable FpsListener fpsListener) {
+  public ReactScrollView(ReactContext context, @Nullable FpsListener fpsListener) {
     super(context);
+
+    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+    mViewManager = (ReactViewManager) uiManager.getUIImplementation().getViewManager(ReactViewManager.REACT_CLASS);
+
     mFpsListener = fpsListener;
 
     if (!sTriedToGetScrollerField) {
@@ -139,6 +161,7 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
     super.onScrollChanged(x, y, oldX, oldY);
 
     if (mOnScrollDispatchHelper.onScrollChanged(x, y)) {
+      dockClosestSectionHeader();
       if (mRemoveClippedSubviews) {
         updateClippingRect();
       }
@@ -149,6 +172,28 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
 
       ReactScrollViewHelper.emitScrollEvent(this);
     }
+  }
+
+  @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    Log.d("test", "ScrollView dispatchTouchEvent");
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
+  public View hitTest(float[] coordinates) {
+    if (mCurrentStickyHeader != null) {
+      PointF localCoords = new PointF();
+      boolean hit = TouchTargetHelper.isTransformedTouchPointInView(
+        coordinates[0],coordinates[1], this, mCurrentStickyHeader, localCoords);
+      if (hit) {
+        return TouchTargetHelper.findTouchTargetViewWithPointerEvents(
+          new float[] { localCoords.x, localCoords.y },
+          mCurrentStickyHeader);
+      }
+    }
+
+    return TouchTargetHelper.findTouchTargetViewWithPointerEvents(coordinates, this);
   }
 
   @Override
@@ -306,6 +351,86 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
     if (color != mEndFillColor) {
       mEndFillColor = color;
       mEndBackground = new ColorDrawable(mEndFillColor);
+    }
+  }
+
+  public void setStickyHeaderIndices(@Nullable ReadableArray indices) {
+    if (indices == null) {
+      mStickyHeaderIndices = null;
+    } else {
+      int[] indicesArray = new int[indices.size()];
+      for (int i = 0; i < indices.size(); i++) {
+        indicesArray[i] = indices.getInt(i);
+      }
+
+      mStickyHeaderIndices = indicesArray;
+    }
+    dockClosestSectionHeader();
+  }
+
+  private void dockClosestSectionHeader() {
+    mCurrentStickyHeader = null;
+    if (mStickyHeaderIndices == null) {
+      return;
+    }
+
+    View previousHeader = null;
+    View currentHeader = null;
+    View nextHeader = null;
+    ReactViewGroup contentView = (ReactViewGroup) getChildAt(0);
+    if (contentView == null) {
+      return;
+    }
+    contentView.setChildDrawingOrderDelegate(mContentDrawingOrderDelegate);
+
+    int scrollY = getScrollY();
+    for (int idx : mStickyHeaderIndices) {
+      // If the subviews are out of sync with the sticky header indices don't
+      // do anything.
+      if (idx >= mViewManager.getChildCount(contentView)) {
+        break;
+      }
+
+      View header = mViewManager.getChildAt(contentView, idx);
+
+      // If nextHeader not yet found, search for docked headers.
+      if (nextHeader == null) {
+        int top = header.getTop();
+        if (top > scrollY) {
+          nextHeader = header;
+        } else {
+          previousHeader = currentHeader;
+          currentHeader = header;
+        }
+      }
+
+      header.setTranslationY(0);
+    }
+
+    if (currentHeader == null) {
+      return;
+    }
+
+    int currentHeaderTop = currentHeader.getTop();
+    int currentHeaderHeight = currentHeader.getHeight();
+    int yOffset = scrollY - currentHeaderTop;
+
+    if (nextHeader != null) {
+      // The next header nudges the current header out of the way when it reaches
+      // the top of the screen.
+      int nextHeaderTop = nextHeader.getTop();
+      int overlap = currentHeaderHeight - (nextHeaderTop - scrollY);
+      yOffset -= Math.max(0, overlap);
+    }
+
+    currentHeader.setTranslationY(yOffset);
+    mCurrentStickyHeader = currentHeader;
+
+    if (previousHeader != null) {
+      // The previous header sits right above the currentHeader's initial position
+      // so it scrolls away nicely once the currentHeader has locked into place.
+      yOffset = currentHeaderTop - previousHeader.getTop() - previousHeader.getHeight();
+      previousHeader.setTranslationY(yOffset);
     }
   }
 
