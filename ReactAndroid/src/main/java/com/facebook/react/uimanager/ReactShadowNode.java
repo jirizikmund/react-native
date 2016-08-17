@@ -63,6 +63,7 @@ public class ReactShadowNode {
   private @Nullable ReactShadowNode mParent;
 
   // layout-only nodes
+  private boolean mIsCollapsibleChildren;
   private boolean mIsLayoutOnly;
   private int mTotalNativeChildren = 0;
   private @Nullable ReactShadowNode mNativeParent;
@@ -412,7 +413,15 @@ public class ReactShadowNode {
     return mIsLayoutOnly;
   }
 
-  public final int getTotalNativeChildren() {
+  public void setIsCollapsibleChildren(boolean isCollapsible) {
+    mIsCollapsibleChildren = isCollapsible;
+  }
+
+  public boolean isCollapsibleChildren() {
+    return mIsCollapsibleChildren;
+  }
+
+  public int getTotalNativeChildren() {
     return mTotalNativeChildren;
   }
 

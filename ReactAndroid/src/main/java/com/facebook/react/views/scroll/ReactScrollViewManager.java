@@ -9,10 +9,6 @@
 
 package com.facebook.react.views.scroll;
 
-import javax.annotation.Nullable;
-
-import java.util.Map;
-
 import android.graphics.Color;
 
 import com.facebook.react.bridge.ReadableArray;
@@ -22,6 +18,11 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
+import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  * View manager for {@link ReactScrollView} components.
@@ -105,6 +106,11 @@ public class ReactScrollViewManager
   @ReactProp(name = "endFillColor", defaultInt = Color.TRANSPARENT, customType = "Color")
   public void setBottomFillColor(ReactScrollView view, int color) {
     view.setEndFillColor(color);
+  }
+
+  @ReactProp(name = "stickyHeaderIndices")
+  public void setStickyHeaderIndices(ReactScrollView view, @Nullable ReadableArray indices) {
+    view.setStickyHeaderIndices(indices);
   }
 
   @Override
