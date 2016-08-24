@@ -11,7 +11,6 @@ package com.facebook.react.views.scroll;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -27,8 +26,6 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.uimanager.MeasureSpecAssertions;
-import com.facebook.react.uimanager.ReactHitTestView;
-import com.facebook.react.uimanager.TouchTargetHelper;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.ReactClippingViewGroup;
@@ -41,7 +38,7 @@ import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
  * <p>ReactScrollView only supports vertical scrolling. For horizontal scrolling,
  * use {@link ReactHorizontalScrollView}.
  */
-public class ReactScrollView extends ScrollView implements ReactClippingViewGroup, ViewGroup.OnHierarchyChangeListener, View.OnLayoutChangeListener, ReactHitTestView {
+public class ReactScrollView extends ScrollView implements ReactClippingViewGroup, ViewGroup.OnHierarchyChangeListener, View.OnLayoutChangeListener {
 
   private static Field sScrollerField;
   private static boolean sTriedToGetScrollerField = false;
@@ -179,22 +176,6 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
 
       ReactScrollViewHelper.emitScrollEvent(this);
     }
-  }
-
-  @Override
-  public View hitTest(float[] coordinates) {
-    if (mCurrentStickyHeader != null) {
-      PointF localCoords = new PointF();
-      boolean hit = TouchTargetHelper.isTransformedTouchPointInView(
-        coordinates[0],coordinates[1], this, mCurrentStickyHeader, localCoords);
-      if (hit) {
-        return TouchTargetHelper.findTouchTargetViewWithPointerEvents(
-          new float[] { localCoords.x, localCoords.y },
-          mCurrentStickyHeader);
-      }
-    }
-
-    return TouchTargetHelper.findTouchTargetViewWithPointerEvents(coordinates, this);
   }
 
   @Override
