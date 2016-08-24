@@ -26,7 +26,6 @@ public class ViewProps {
   public static final String OVERFLOW = "overflow";
   public static final String BOTTOM = "bottom";
   public static final String COLLAPSABLE = "collapsable";
-  public static final String COLLAPSABLE_CHILDREN = "collapsableChildren";
   public static final String FLEX = "flex";
   public static final String FLEX_GROW = "flexGrow";
   public static final String FLEX_SHRINK = "flexShrink";
