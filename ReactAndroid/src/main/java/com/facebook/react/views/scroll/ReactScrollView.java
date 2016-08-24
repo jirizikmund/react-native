@@ -59,7 +59,6 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
   private int mEndFillColor = Color.TRANSPARENT;
   private View mContentView;
   private @Nullable int[] mStickyHeaderIndices;
-  private @Nullable View mCurrentStickyHeader;
   private ReactViewManager mViewManager;
 
   private final ReactViewGroup.ChildDrawingOrderDelegate mContentDrawingOrderDelegate =
@@ -357,7 +356,6 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
   }
 
   private void dockClosestSectionHeader() {
-    mCurrentStickyHeader = null;
     if (mStickyHeaderIndices == null) {
       return;
     }
@@ -412,7 +410,6 @@ public class ReactScrollView extends ScrollView implements ReactClippingViewGrou
     }
 
     currentHeader.setTranslationY(yOffset);
-    mCurrentStickyHeader = currentHeader;
 
     if (previousHeader != null) {
       // The previous header sits right above the currentHeader's initial position
