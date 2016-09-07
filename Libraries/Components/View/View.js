@@ -481,7 +481,7 @@ const View = React.createClass({
      *
      * @platform android
      */
-    collapsableChildren: PropTypes.bool,
+    collapseChildren: PropTypes.bool,
 
     /**
      * Whether this `View` needs to rendered offscreen and composited with an alpha
