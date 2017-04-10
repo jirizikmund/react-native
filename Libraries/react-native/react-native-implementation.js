@@ -41,6 +41,7 @@ const ReactNative = {
   get SnapshotViewIOS() { return require('SnapshotViewIOS'); },
   get Switch() { return require('Switch'); },
   get RefreshControl() { return require('RefreshControl'); },
+  get Snapshot() { return require('Snapshot'); },
   get StatusBar() { return require('StatusBar'); },
   get SwipeableListView() { return require('SwipeableListView'); },
   get TabBarIOS() { return require('TabBarIOS'); },

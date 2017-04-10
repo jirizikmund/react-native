@@ -53,6 +53,7 @@ import com.facebook.react.modules.netinfo.NetInfoModule;
 import com.facebook.react.modules.network.NetworkingModule;
 import com.facebook.react.modules.permissions.PermissionsModule;
 import com.facebook.react.modules.share.ShareModule;
+import com.facebook.react.modules.snapshot.SnapshotModule;
 import com.facebook.react.modules.statusbar.StatusBarModule;
 import com.facebook.react.modules.storage.AsyncStorageModule;
 import com.facebook.react.modules.timepicker.TimePickerDialogModule;
@@ -71,6 +72,7 @@ import com.facebook.react.views.progressbar.ReactProgressBarViewManager;
 import com.facebook.react.views.scroll.ReactHorizontalScrollViewManager;
 import com.facebook.react.views.scroll.ReactScrollViewManager;
 import com.facebook.react.views.slider.ReactSliderManager;
+import com.facebook.react.views.snapshotview.SnapshotViewManager;
 import com.facebook.react.views.swiperefresh.SwipeRefreshLayoutManager;
 import com.facebook.react.views.switchview.ReactSwitchManager;
 import com.facebook.react.views.text.ReactRawTextManager;
@@ -241,12 +243,18 @@ public class MainReactPackage extends LazyReactPackage {
           return new VibrationModule(context);
         }
       }),
-      new ModuleSpec(WebSocketModule.class, new Provider<NativeModule>() {
+      new ModuleSpec(SnapshotModule.class, new Provider<NativeModule>() {
         @Override
         public NativeModule get() {
-          return new WebSocketModule(context);
+          return new SnapshotModule(context);
         }
-      }));
+      }),
+      new ModuleSpec(WebSocketModule.class, new Provider<NativeModule>() {
+      @Override
+      public NativeModule get() {
+        return new WebSocketModule(context);
+      }
+    }));
   }
 
   @Override
@@ -282,6 +290,7 @@ public class MainReactPackage extends LazyReactPackage {
     viewManagers.add(new ReactVirtualTextViewManager());
     viewManagers.add(new ReactWebViewManager());
     viewManagers.add(new SwipeRefreshLayoutManager());
+    viewManagers.add(new SnapshotViewManager(reactContext));
 
     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(reactContext);
     if (preferences.getBoolean("flat_uiimplementation", false)) {

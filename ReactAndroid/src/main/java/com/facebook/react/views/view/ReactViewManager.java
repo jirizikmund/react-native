@@ -159,6 +159,11 @@ public class ReactViewManager extends ViewGroupManager<ReactViewGroup> {
     // handled in NativeViewHierarchyOptimizer
   }
 
+  @ReactProp(name = "drawableCacheEnabled")
+  public void setDrawableCacheEnabled(ReactViewGroup view, boolean drawableCacheEnabled) {
+    view.setDrawingCacheEnabled(drawableCacheEnabled);
+  }
+
   @Override
   public String getName() {
     return REACT_CLASS;

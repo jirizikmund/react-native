@@ -196,6 +196,7 @@ const RCTView = requireNativeComponent('RCTView', View, {
   nativeOnly: {
     nativeBackgroundAndroid: true,
     nativeForegroundAndroid: true,
+    drawableCacheEnabled: true,
   }
 });
 

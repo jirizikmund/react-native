@@ -221,6 +221,10 @@ const APIExamples: Array<UIExplorerExample> = [
     module: require('./ShareExample'),
   },
   {
+    key: 'SnapshotExample',
+    module: require('./SnapshotExample'),
+  },
+  {
     key: 'TimePickerAndroidExample',
     module: require('./TimePickerAndroidExample'),
   },
