@@ -37,6 +37,50 @@ static NSNumber *RCTGetEventID(id<RCTEvent> event)
   );
 }
 
+/**
+ * Dumb RCTEvent for input events.
+ * Input events don't use RCTEvent but we have to create one to send to the
+ * listeners.
+ */
+@interface RCTInputEvent : NSObject<RCTEvent>
+
+@end
+
+@implementation RCTInputEvent
+{
+  NSArray *_arguments;
+}
+
+@synthesize eventName = _eventName;
+@synthesize viewTag = _viewTag;
+@synthesize coalescingKey = _coalescingKey;
+
+- (instancetype)initWithName:(NSString *)name viewTag:(NSNumber *)viewTag arguments:(NSArray *)arguments
+{
+  self = [super init];
+  if (self) {
+    _eventName = name;
+    _viewTag = viewTag;
+    _arguments = arguments;
+  }
+  return self;
+}
+
+- (NSArray *)arguments
+{
+  return _arguments;
+}
+
+- (BOOL)canCoalesce
+{
+  return NO;
+}
+
+RCT_NOT_IMPLEMENTED(+ (NSString *)moduleDotMethod);
+RCT_NOT_IMPLEMENTED(- (id<RCTEvent>)coalesceWithEvent:(id<RCTEvent>)newEvent);
+
+@end
+
 @implementation RCTEventDispatcher
 {
   // We need this lock to protect access to _events, _eventQueue and _eventsDispatchScheduled. It's filled in on main thread and consumed on js thread.
@@ -83,15 +127,29 @@ RCT_EXPORT_MODULE()
 
 - (void)sendInputEventWithName:(NSString *)name body:(NSDictionary *)body
 {
+  NSNumber *target = body[@"target"];
+  NSArray *args = body ? @[target, name, body] : @[target, name];
+  name = RCTNormalizeInputEventName(name);
+
   if (RCT_DEBUG) {
-    RCTAssert([body[@"target"] isKindOfClass:[NSNumber class]],
+    RCTAssert([target isKindOfClass:[NSNumber class]],
       @"Event body dictionary must include a 'target' property containing a React tag");
   }
 
-  name = RCTNormalizeInputEventName(name);
+  [_observersLock lock];
+
+  if (_observers.count > 0) {
+    RCTInputEvent *event = [[RCTInputEvent alloc] initWithName:name viewTag:target arguments:args];
+    for (id<RCTEventDispatcherObserver> observer in _observers) {
+      [observer eventDispatcherWillDispatchEvent:event];
+    }
+  }
+
+  [_observersLock unlock];
+
   [_bridge enqueueJSCall:@"RCTEventEmitter"
                   method:@"receiveEvent"
-                    args:body ? @[body[@"target"], name, body] : @[body[@"target"], name]
+                    args:args
               completion:NULL];
 }
 

@@ -209,11 +209,11 @@ class InternalSettings extends React.Component<{}, {busyTime: number | string, f
 
 class EventExample extends React.Component<{}, $FlowFixMeState> {
   state = {
-    scrollX: new Animated.Value(0),
+    anim: new Animated.Value(0),
   };
 
   render() {
-    const opacity = this.state.scrollX.interpolate({
+    const opacity = this.state.anim.interpolate({
       inputRange: [0, 200],
       outputRange: [1, 0],
     });
@@ -232,7 +232,7 @@ class EventExample extends React.Component<{}, $FlowFixMeState> {
           style={{height: 100, marginTop: 16}}
           scrollEventThrottle={16}
           onScroll={Animated.event(
-            [{nativeEvent: {contentOffset: {x: this.state.scrollX}}}],
+            [{nativeEvent: {contentOffset: {x: this.state.anim}}}],
             {useNativeDriver: true},
           )}>
           <View
@@ -244,6 +244,12 @@ class EventExample extends React.Component<{}, $FlowFixMeState> {
             <Text>Scroll me!</Text>
           </View>
         </Animated.ScrollView>
+        <AnimatedSlider
+          maximumValue={200}
+          onValueChange={Animated.event(
+            [{nativeEvent: {value: this.state.anim}}],
+            {useNativeDriver: true},
+          )} />
       </View>
     );
   }
