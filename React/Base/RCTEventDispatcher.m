@@ -14,6 +14,7 @@
 #import "RCTBridge+Private.h"
 #import "RCTUtils.h"
 #import "RCTProfile.h"
+#import "RCTInputEvent.h"
 
 const NSInteger RCTTextUpdateLagWarningThreshold = 3;
 
@@ -36,50 +37,6 @@ static NSNumber *RCTGetEventID(id<RCTEvent> event)
     (((uint64_t)event.coalescingKey) << 48)
   );
 }
-
-/**
- * Dumb RCTEvent for input events.
- * Input events don't use RCTEvent but we have to create one to send to the
- * listeners.
- */
-@interface RCTInputEvent : NSObject<RCTEvent>
-
-@end
-
-@implementation RCTInputEvent
-{
-  NSArray *_arguments;
-}
-
-@synthesize eventName = _eventName;
-@synthesize viewTag = _viewTag;
-@synthesize coalescingKey = _coalescingKey;
-
-- (instancetype)initWithName:(NSString *)name viewTag:(NSNumber *)viewTag arguments:(NSArray *)arguments
-{
-  self = [super init];
-  if (self) {
-    _eventName = name;
-    _viewTag = viewTag;
-    _arguments = arguments;
-  }
-  return self;
-}
-
-- (NSArray *)arguments
-{
-  return _arguments;
-}
-
-- (BOOL)canCoalesce
-{
-  return NO;
-}
-
-RCT_NOT_IMPLEMENTED(+ (NSString *)moduleDotMethod);
-RCT_NOT_IMPLEMENTED(- (id<RCTEvent>)coalesceWithEvent:(id<RCTEvent>)newEvent);
-
-@end
 
 @implementation RCTEventDispatcher
 {
