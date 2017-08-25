@@ -9,7 +9,7 @@
 
 #import "RCTComponentEvent.h"
 
-#import "RCTUtils.h"
+#import "RCTAssert.h"
 
 @implementation RCTComponentEvent
 {
