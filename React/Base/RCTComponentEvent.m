@@ -32,7 +32,7 @@
     
     _eventName = name;
     _viewTag = target;
-    _arguments = @[target, name, body];;
+    _arguments = @[target, name, body];
   }
   return self;
 }
