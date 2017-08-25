@@ -10,9 +10,7 @@
 #import <React/RCTEventDispatcher.h>
 
 /**
- * Dumb RCTEvent for input events.
- * Input events don't use RCTEvent but we have to create one to send to the
- * listeners.
+ * Event that is dispatched to React components.
  */
 @interface RCTComponentEvent : NSObject<RCTEvent>
 
