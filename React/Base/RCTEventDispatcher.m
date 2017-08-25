@@ -14,7 +14,7 @@
 #import "RCTBridge+Private.h"
 #import "RCTUtils.h"
 #import "RCTProfile.h"
-#import "RCTInputEvent.h"
+#import "RCTComponentEvent.h"
 
 const NSInteger RCTTextUpdateLagWarningThreshold = 3;
 
@@ -29,12 +29,15 @@ NSString *RCTNormalizeInputEventName(NSString *eventName)
   return eventName;
 }
 
+// Key generator for events that cannot be coalesced.
+static uint16_t RCTNonCoalescableEventKey = 0;
+
 static NSNumber *RCTGetEventID(id<RCTEvent> event)
 {
   return @(
     event.viewTag.intValue |
     (((uint64_t)event.eventName.hash & 0xFFFF) << 32) |
-    (((uint64_t)event.coalescingKey) << 48)
+    (((uint64_t)([event canCoalesce] ? event.coalescingKey : RCTNonCoalescableEventKey++)) << 48)
   );
 }
 
@@ -82,34 +85,6 @@ RCT_EXPORT_MODULE()
               completion:NULL];
 }
 
-- (void)sendInputEventWithName:(NSString *)name body:(NSDictionary *)body
-{
-  NSNumber *target = body[@"target"];
-  NSArray *args = body ? @[target, name, body] : @[target, name];
-  name = RCTNormalizeInputEventName(name);
-
-  if (RCT_DEBUG) {
-    RCTAssert([target isKindOfClass:[NSNumber class]],
-      @"Event body dictionary must include a 'target' property containing a React tag");
-  }
-
-  [_observersLock lock];
-
-  if (_observers.count > 0) {
-    RCTInputEvent *event = [[RCTInputEvent alloc] initWithName:name viewTag:target arguments:args];
-    for (id<RCTEventDispatcherObserver> observer in _observers) {
-      [observer eventDispatcherWillDispatchEvent:event];
-    }
-  }
-
-  [_observersLock unlock];
-
-  [_bridge enqueueJSCall:@"RCTEventEmitter"
-                  method:@"receiveEvent"
-                    args:args
-              completion:NULL];
-}
-
 - (void)sendTextEventWithType:(RCTTextEventType)type
                      reactTag:(NSNumber *)reactTag
                          text:(NSString *)text
@@ -151,10 +126,8 @@ RCT_EXPORT_MODULE()
     body[@"key"] = key;
   }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self sendInputEventWithName:events[type] body:body];
-#pragma clang diagnostic pop
+  RCTComponentEvent *event = [[RCTComponentEvent alloc] initWithName:events[type] body:body];
+  [self sendEvent:event];
 }
 
 - (void)sendEvent:(id<RCTEvent>)event

@@ -203,10 +203,10 @@
 		14F7A0F01BDA714B003C6C10 /* RCTFPSGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = 14F7A0EF1BDA714B003C6C10 /* RCTFPSGraph.m */; };
 		191E3EBE1C29D9AF00C180A6 /* RCTRefreshControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 191E3EBD1C29D9AF00C180A6 /* RCTRefreshControlManager.m */; };
 		191E3EC11C29DC3800C180A6 /* RCTRefreshControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 191E3EC01C29DC3800C180A6 /* RCTRefreshControl.m */; };
-		197C08ED1F4D51AD00AE3DC9 /* RCTInputEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 197C08EB1F4D51AD00AE3DC9 /* RCTInputEvent.h */; };
-		197C08EE1F4D51AD00AE3DC9 /* RCTInputEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 197C08EB1F4D51AD00AE3DC9 /* RCTInputEvent.h */; };
-		197C08EF1F4D51AD00AE3DC9 /* RCTInputEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 197C08EC1F4D51AD00AE3DC9 /* RCTInputEvent.m */; };
-		197C08F01F4D51AD00AE3DC9 /* RCTInputEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 197C08EC1F4D51AD00AE3DC9 /* RCTInputEvent.m */; };
+		197C08ED1F4D51AD00AE3DC9 /* RCTComponentEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 197C08EB1F4D51AD00AE3DC9 /* RCTComponentEvent.h */; };
+		197C08EE1F4D51AD00AE3DC9 /* RCTComponentEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 197C08EB1F4D51AD00AE3DC9 /* RCTComponentEvent.h */; };
+		197C08EF1F4D51AD00AE3DC9 /* RCTComponentEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 197C08EC1F4D51AD00AE3DC9 /* RCTComponentEvent.m */; };
+		197C08F01F4D51AD00AE3DC9 /* RCTComponentEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 197C08EC1F4D51AD00AE3DC9 /* RCTComponentEvent.m */; };
 		19F0AD721F1DE7C400E4949F /* RCTShadowView+Hierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = 19F0AD701F1DE7C400E4949F /* RCTShadowView+Hierarchy.h */; };
 		19F0AD731F1DE7C400E4949F /* RCTShadowView+Hierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = 19F0AD711F1DE7C400E4949F /* RCTShadowView+Hierarchy.m */; };
 		19F61BFA1E8495CD00571D81 /* bignum-dtoa.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 139D7E3A1E25C5A300323FB7 /* bignum-dtoa.h */; };
@@ -1844,8 +1844,8 @@
 		191E3EBD1C29D9AF00C180A6 /* RCTRefreshControlManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTRefreshControlManager.m; sourceTree = "<group>"; };
 		191E3EBF1C29DC3800C180A6 /* RCTRefreshControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTRefreshControl.h; sourceTree = "<group>"; };
 		191E3EC01C29DC3800C180A6 /* RCTRefreshControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTRefreshControl.m; sourceTree = "<group>"; };
-		197C08EB1F4D51AD00AE3DC9 /* RCTInputEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTInputEvent.h; sourceTree = "<group>"; };
-		197C08EC1F4D51AD00AE3DC9 /* RCTInputEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTInputEvent.m; sourceTree = "<group>"; };
+		197C08EB1F4D51AD00AE3DC9 /* RCTComponentEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTComponentEvent.h; path = ../Base/RCTComponentEvent.h; sourceTree = "<group>"; };
+		197C08EC1F4D51AD00AE3DC9 /* RCTComponentEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTComponentEvent.m; path = ../Base/RCTComponentEvent.m; sourceTree = "<group>"; };
 		19DED2281E77E29200F089BB /* systemJSCWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = systemJSCWrapper.cpp; sourceTree = "<group>"; };
 		19F0AD701F1DE7C400E4949F /* RCTShadowView+Hierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCTShadowView+Hierarchy.h"; sourceTree = "<group>"; };
 		19F0AD711F1DE7C400E4949F /* RCTShadowView+Hierarchy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCTShadowView+Hierarchy.m"; sourceTree = "<group>"; };
@@ -2279,6 +2279,8 @@
 				13C325281AA63B6A0048765F /* RCTComponent.h */,
 				13AB90BF1B6FA36700713B4F /* RCTComponentData.h */,
 				13AB90C01B6FA36700713B4F /* RCTComponentData.m */,
+				197C08EB1F4D51AD00AE3DC9 /* RCTComponentEvent.h */,
+				197C08EC1F4D51AD00AE3DC9 /* RCTComponentEvent.m */,
 				13456E911ADAD2DE009F94A7 /* RCTConvert+CoreLocation.h */,
 				13456E921ADAD2DE009F94A7 /* RCTConvert+CoreLocation.m */,
 				130443C31E401A8C00D93A67 /* RCTConvert+Transform.h */,
@@ -2608,8 +2610,6 @@
 				14C2CA751B3AC64F00E6CBB2 /* RCTFrameUpdate.m */,
 				13BB3D001BECD54500932C10 /* RCTImageSource.h */,
 				13BB3D011BECD54500932C10 /* RCTImageSource.m */,
-				197C08EB1F4D51AD00AE3DC9 /* RCTInputEvent.h */,
-				197C08EC1F4D51AD00AE3DC9 /* RCTInputEvent.m */,
 				83CBBA4C1A601E3B00E9B192 /* RCTInvalidating.h */,
 				83CBBA631A601ECA00E9B192 /* RCTJavaScriptExecutor.h */,
 				14200DA81AC179B3008EE6BA /* RCTJavaScriptLoader.h */,
@@ -2843,7 +2843,7 @@
 				3D302F6D1DF828F800D6DDAE /* RCTAutoInsetsProtocol.h in Headers */,
 				3D302F6E1DF828F800D6DDAE /* RCTBorderDrawing.h in Headers */,
 				3D302F6F1DF828F800D6DDAE /* RCTBorderStyle.h in Headers */,
-				197C08EE1F4D51AD00AE3DC9 /* RCTInputEvent.h in Headers */,
+				197C08EE1F4D51AD00AE3DC9 /* RCTComponentEvent.h in Headers */,
 				3D302F701DF828F800D6DDAE /* RCTComponent.h in Headers */,
 				3D302F711DF828F800D6DDAE /* RCTComponentData.h in Headers */,
 				3D302F721DF828F800D6DDAE /* RCTConvert+CoreLocation.h in Headers */,
@@ -3130,7 +3130,7 @@
 				3D80DA621DF820620028D040 /* RCTAutoInsetsProtocol.h in Headers */,
 				C60128AB1F3D1258009DF9FF /* RCTCxxConvert.h in Headers */,
 				3D80DA631DF820620028D040 /* RCTBorderDrawing.h in Headers */,
-				197C08ED1F4D51AD00AE3DC9 /* RCTInputEvent.h in Headers */,
+				197C08ED1F4D51AD00AE3DC9 /* RCTComponentEvent.h in Headers */,
 				3D80DA641DF820620028D040 /* RCTBorderStyle.h in Headers */,
 				3D80DA651DF820620028D040 /* RCTComponent.h in Headers */,
 				3D80DA661DF820620028D040 /* RCTComponentData.h in Headers */,
@@ -3713,7 +3713,7 @@
 				2D3B5EC41D9B094B00451313 /* RCTProfileTrampoline-arm64.S in Sources */,
 				3D7BFD281EA8E351008DFB7A /* RCTSamplingProfilerPackagerMethod.mm in Sources */,
 				2D3B5EBB1D9B092300451313 /* RCTI18nManager.m in Sources */,
-				197C08F01F4D51AD00AE3DC9 /* RCTInputEvent.m in Sources */,
+				197C08F01F4D51AD00AE3DC9 /* RCTComponentEvent.m in Sources */,
 				2D3B5EBE1D9B092D00451313 /* RCTUIManager.m in Sources */,
 				C60128AE1F3D1258009DF9FF /* RCTCxxConvert.m in Sources */,
 				2D3B5EDD1D9B09A300451313 /* RCTProgressViewManager.m in Sources */,
@@ -3973,7 +3973,7 @@
 				191E3EBE1C29D9AF00C180A6 /* RCTRefreshControlManager.m in Sources */,
 				657734911EE8354A00A0E9EA /* RCTInspectorPackagerConnection.m in Sources */,
 				68EFE4EE1CF6EB3900A1DE13 /* RCTBundleURLProvider.m in Sources */,
-				197C08EF1F4D51AD00AE3DC9 /* RCTInputEvent.m in Sources */,
+				197C08EF1F4D51AD00AE3DC9 /* RCTComponentEvent.m in Sources */,
 				B95154321D1B34B200FE7B80 /* RCTActivityIndicatorView.m in Sources */,
 				59FBEFB21E46D91C0095D885 /* RCTScrollContentShadowView.m in Sources */,
 				5960C1BB1F0804A00066FD5B /* RCTLayoutAnimationGroup.m in Sources */,

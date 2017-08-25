@@ -14,8 +14,8 @@
  * Input events don't use RCTEvent but we have to create one to send to the
  * listeners.
  */
-@interface RCTInputEvent : NSObject<RCTEvent>
+@interface RCTComponentEvent : NSObject<RCTEvent>
 
-- (instancetype)initWithName:(NSString *)name viewTag:(NSNumber *)viewTag arguments:(NSArray *)arguments;
+- (instancetype)initWithName:(NSString *)name body:(NSDictionary *)body;
 
 @end

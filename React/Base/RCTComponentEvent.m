@@ -7,23 +7,32 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "RCTInputEvent.h"
+#import "RCTComponentEvent.h"
 
-@implementation RCTInputEvent
+#import "RCTUtils.h"
+
+@implementation RCTComponentEvent
 {
   NSArray *_arguments;
 }
 
 @synthesize eventName = _eventName;
 @synthesize viewTag = _viewTag;
-@synthesize coalescingKey = _coalescingKey;
 
-- (instancetype)initWithName:(NSString *)name viewTag:(NSNumber *)viewTag arguments:(NSArray *)arguments
+- (instancetype)initWithName:(NSString *)name body:(NSDictionary *)body
 {
   if (self = [super init]) {
+    NSNumber *target = body[@"target"];
+    name = RCTNormalizeInputEventName(name);
+    
+    if (RCT_DEBUG) {
+      RCTAssert([target isKindOfClass:[NSNumber class]],
+                @"Event body dictionary must include a 'target' property containing a React tag");
+    }
+    
     _eventName = name;
-    _viewTag = viewTag;
-    _arguments = arguments;
+    _viewTag = target;
+    _arguments = @[target, name, body];;
   }
   return self;
 }
@@ -38,7 +47,9 @@
   return NO;
 }
 
-RCT_NOT_IMPLEMENTED(+ (NSString *)moduleDotMethod);
-RCT_NOT_IMPLEMENTED(- (id<RCTEvent>)coalesceWithEvent:(id<RCTEvent>)newEvent);
++ (NSString *)moduleDotMethod
+{
+  return @"RCTEventEmitter.receiveEvent";
+}
 
 @end
