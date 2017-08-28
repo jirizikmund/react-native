@@ -8,9 +8,14 @@
  */
 #import "RCTNativeAnimatedModule.h"
 
+#import "RCTAnimatedValueChangeEvent.h"
 #import "RCTNativeAnimatedNodesManager.h"
 
 typedef void (^AnimatedOperation)(RCTNativeAnimatedNodesManager *nodesManager);
+
+@interface RCTNativeAnimatedModule () <RCTValueAnimatedNodeObserver, RCTEventDispatcherObserver, RCTUIManagerObserver>
+
+@end
 
 @implementation RCTNativeAnimatedModule
 {
@@ -21,6 +26,8 @@ typedef void (^AnimatedOperation)(RCTNativeAnimatedNodesManager *nodesManager);
   // Operations called before views have been updated.
   NSMutableArray<AnimatedOperation> *_preOperations;
 }
+
+@synthesize bridge = _bridge;
 
 RCT_EXPORT_MODULE();
 
@@ -41,8 +48,8 @@ RCT_EXPORT_MODULE();
 
 - (void)setBridge:(RCTBridge *)bridge
 {
-  [super setBridge:bridge];
-
+  _bridge = bridge;
+  
   _nodesManager = [[RCTNativeAnimatedNodesManager alloc] initWithUIManager:self.bridge.uiManager];
   _operations = [NSMutableArray new];
   _preOperations = [NSMutableArray new];
@@ -226,15 +233,10 @@ RCT_EXPORT_METHOD(removeAnimatedEventFromView:(nonnull NSNumber *)viewTag
 
 #pragma mark -- Events
 
-- (NSArray<NSString *> *)supportedEvents
-{
-  return @[@"onAnimatedValueUpdate"];
-}
-
 - (void)animatedNode:(RCTValueAnimatedNode *)node didUpdateValue:(CGFloat)value
 {
-  [self sendEventWithName:@"onAnimatedValueUpdate"
-                     body:@{@"tag": node.nodeTag, @"value": @(value)}];
+  RCTAnimatedValueChangeEvent *event = [[RCTAnimatedValueChangeEvent alloc] initWithNodeTag:node.nodeTag value:value];
+  [self.bridge.eventDispatcher sendEvent:event];
 }
 
 - (void)eventDispatcherWillDispatchEvent:(id<RCTEvent>)event

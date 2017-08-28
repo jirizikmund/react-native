@@ -7,14 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTBridgeModule.h>
 #import <React/RCTEventDispatcher.h>
-#import <React/RCTEventEmitter.h>
-#import <React/RCTUIManager.h>
-#import <React/RCTUIManagerObserverCoordinator.h>
 
-#import "RCTValueAnimatedNode.h"
+@interface RCTAnimatedValueChangeEvent : NSObject <RCTEvent>
 
-@interface RCTNativeAnimatedModule : NSObject <RCTBridgeModule>
+- (instancetype)initWithNodeTag:(NSNumber *)nodeTag
+                          value:(CGFloat)value NS_DESIGNATED_INITIALIZER;
 
 @end
