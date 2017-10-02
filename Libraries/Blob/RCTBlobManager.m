@@ -11,20 +11,27 @@
 
 #import <React/RCTConvert.h>
 #import <React/RCTWebSocketModule.h>
+#import <React/RCTNetworking.h>
 
 static NSString *const kBlobUriScheme = @"blob";
 
-@interface _RCTBlobContentHandler : NSObject <RCTWebSocketContentHandler>
+@interface _RCTBlobWebSocketContentHandler : NSObject <RCTWebSocketContentHandler>
 
 - (instancetype)initWithBlobManager:(RCTBlobManager *)blobManager;
 
 @end
 
+@interface _RCTBlobXMLHttpRequestContentHandler : NSObject <RCTXMLHttpRequestContentHandler>
+
+- (instancetype)initWithBlobManager:(RCTBlobManager *)blobManager;
+
+@end
 
 @implementation RCTBlobManager
 {
   NSMutableDictionary<NSString *, NSData *> *_blobs;
-  _RCTBlobContentHandler *_contentHandler;
+  _RCTBlobWebSocketContentHandler *_webSocketContentHandler;
+  _RCTBlobXMLHttpRequestContentHandler *_xmlHttpRequestContentHandler;
   NSOperationQueue *_queue;
 }
 
@@ -62,7 +69,6 @@ RCT_EXPORT_MODULE(BlobModule)
   if (!_blobs) {
     _blobs = [NSMutableDictionary new];
   }
-
   _blobs[blobId] = data;
 }
 
@@ -71,7 +77,6 @@ RCT_EXPORT_MODULE(BlobModule)
   NSString *blobId = [RCTConvert NSString:blob[@"blobId"]];
   NSNumber *offset = [RCTConvert NSNumber:blob[@"offset"]];
   NSNumber *size = [RCTConvert NSNumber:blob[@"size"]];
-
   return [self resolve:blobId
                 offset:offset ? [offset integerValue] : 0
                   size:size ? [size integerValue] : -1];
@@ -89,20 +94,33 @@ RCT_EXPORT_MODULE(BlobModule)
   return data;
 }
 
-RCT_EXPORT_METHOD(enableBlobSupport:(nonnull NSNumber *)socketID)
+RCT_EXPORT_METHOD(addXMLHttpRequestHandler)
 {
-  if (!_contentHandler) {
-    _contentHandler = [[_RCTBlobContentHandler alloc] initWithBlobManager:self];
+  if (!_xmlHttpRequestContentHandler) {
+    _xmlHttpRequestContentHandler = [[_RCTBlobXMLHttpRequestContentHandler alloc] initWithBlobManager:self];
   }
-  [[_bridge webSocketModule] setContentHandler:_contentHandler forSocketID:socketID];
+  [[_bridge networking] setContentHandler:_xmlHttpRequestContentHandler];
 }
 
-RCT_EXPORT_METHOD(disableBlobSupport:(nonnull NSNumber *)socketID)
+RCT_EXPORT_METHOD(removeXMLHttpRequestHandler)
+{
+  [[_bridge networking] setContentHandler:nil];
+}
+
+RCT_EXPORT_METHOD(addWebSocketHandler:(nonnull NSNumber *)socketID)
+{
+  if (!_webSocketContentHandler) {
+    _webSocketContentHandler = [[_RCTBlobWebSocketContentHandler alloc] initWithBlobManager:self];
+  }
+  [[_bridge webSocketModule] setContentHandler:_webSocketContentHandler forSocketID:socketID];
+}
+
+RCT_EXPORT_METHOD(removeWebSocketHandler:(nonnull NSNumber *)socketID)
 {
   [[_bridge webSocketModule] setContentHandler:nil forSocketID:socketID];
 }
 
-RCT_EXPORT_METHOD(sendBlob:(NSDictionary *)blob socketID:(nonnull NSNumber *)socketID)
+RCT_EXPORT_METHOD(sendOverSocket:(NSDictionary *)blob socketID:(nonnull NSNumber *)socketID)
 {
   [[_bridge webSocketModule] sendData:[self resolve:blob] forSocketID:socketID];
 }
@@ -111,8 +129,17 @@ RCT_EXPORT_METHOD(createFromParts:(NSArray<NSDictionary<NSString *, id> *> *)par
 {
   NSMutableData *data = [NSMutableData new];
   for (NSDictionary<NSString *, id> *part in parts) {
-    NSData *partData = [self resolve:part];
-    [data appendData:partData];
+    NSString *type = [RCTConvert NSString:part[@"type"]];
+
+    if ([type isEqualToString:@"blob"]) {
+      NSData *partData = [self resolve:part];
+      [data appendData:partData];
+    } else if ([type isEqualToString:@"string"]) {
+      NSData *partData = [[RCTConvert NSString:part[@"data"]] dataUsingEncoding:NSUTF8StringEncoding];
+      [data appendData:partData];
+    } else {
+      [NSException raise:@"Invalid type for blob" format:@"%@ is invalid", type];
+    }
   }
   [self store:data withId:blobId];
 }
@@ -188,7 +215,7 @@ RCT_EXPORT_METHOD(release:(NSString *)blobId)
 
 @end
 
-@implementation _RCTBlobContentHandler {
+@implementation _RCTBlobWebSocketContentHandler {
   __weak RCTBlobManager *_blobManager;
 }
 
@@ -213,6 +240,28 @@ RCT_EXPORT_METHOD(release:(NSString *)blobId)
      @"offset": @0,
      @"size": @(((NSData *)message).length),
    };
+}
+
+@end
+
+@implementation _RCTBlobXMLHttpRequestContentHandler {
+  __weak RCTBlobManager *_blobManager;
+}
+
+-(instancetype)initWithBlobManager:(RCTBlobManager *)blobManager
+{
+  if (self = [super init]) {
+    _blobManager = blobManager;
+  }
+  return self;
+}
+
+- (NSData *)processBlob:(NSDictionary *)blob {
+  return [_blobManager resolve:blob];
+}
+
+- (NSString *)storeBlob:(NSData *)data {
+  return [_blobManager store:data];
 }
 
 @end

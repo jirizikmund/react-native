@@ -131,6 +131,7 @@ static NSString *RCTGenerateFormBoundary()
   NSMutableDictionary<NSNumber *, RCTNetworkTask *> *_tasksByRequestID;
   std::mutex _handlersLock;
   NSArray<id<RCTURLRequestHandler>> *_handlers;
+  id<RCTXMLHttpRequestContentHandler> _contentHandler;
 }
 
 @synthesize methodQueue = _methodQueue;
@@ -297,6 +298,8 @@ RCT_EXPORT_MODULE()
  *
  * - {"formData": [...]}: list of data payloads that will be combined into a multipart/form-data request
  *
+ * - {"blob": {...}}: an object representing a blob
+ *
  * If successful, the callback be called with a result dictionary containing the following (optional) keys:
  *
  * - @"body" (NSData): the body of the request
@@ -315,6 +318,21 @@ RCT_EXPORT_MODULE()
   NSData *body = [RCTConvert NSData:query[@"string"]];
   if (body) {
     return callback(nil, @{@"body": body});
+  }
+  NSDictionary *blob = [RCTConvert NSDictionary:query[@"blob"]];
+  if (blob) {
+    if (_contentHandler) {
+      NSData *data = [_contentHandler processBlob:blob];
+      if (data) {
+        return callback(nil, @{@"body": data});
+      }
+    }
+
+    // RCTBlobManager *blobManager = [[self bridge] moduleForClass:[RCTBlobManager class]];
+    // NSData *data = [blobManager resolve:blob];
+    // if (data) {
+    //   return callback(nil, @{@"body": data});
+    // }
   }
   NSString *base64String = [RCTConvert NSString:query[@"base64"]];
   if (base64String) {
@@ -411,7 +429,9 @@ RCT_EXPORT_MODULE()
 
 - (void)sendData:(NSData *)data
     responseType:(NSString *)responseType
-         forTask:(RCTNetworkTask *)task
+    mimeType:(NSString *)mimeType
+    fileName:(NSString *)fileName
+    forTask:(RCTNetworkTask *)task
 {
   RCTAssertThread(_methodQueue, @"sendData: must be called on method queue");
 
@@ -419,22 +439,35 @@ RCT_EXPORT_MODULE()
     return;
   }
 
-  NSString *responseString;
+  NSArray<id> *responseJSON;
+
   if ([responseType isEqualToString:@"text"]) {
     // No carry storage is required here because the entire data has been loaded.
-    responseString = [RCTNetworking decodeTextData:data fromResponse:task.response withCarryData:nil];
+    NSString *responseString = [RCTNetworking decodeTextData:data fromResponse:task.response withCarryData:nil];
     if (!responseString) {
       RCTLogWarn(@"Received data was not a string, or was not a recognised encoding.");
       return;
     }
+    responseJSON = @[task.requestID, responseString];
+  } else if ([responseType isEqualToString:@"blob"]) {
+    if (_contentHandler) {
+      NSDictionary *responseData = @{
+        @"blobId": [_contentHandler storeBlob:data],
+        @"offset": @0,
+        @"size": @(data.length),
+        @"name": fileName,
+        @"type": mimeType,
+      };
+      responseJSON = @[task.requestID, responseData];
+    }
   } else if ([responseType isEqualToString:@"base64"]) {
-    responseString = [data base64EncodedStringWithOptions:0];
+    NSString *responseString = [data base64EncodedStringWithOptions:0];
+    responseJSON = @[task.requestID, responseString];
   } else {
     RCTLogWarn(@"Invalid responseType: %@", responseType);
     return;
   }
 
-  NSArray<id> *responseJSON = @[task.requestID, responseString];
   [self sendEventWithName:@"didReceiveNetworkData" body:responseJSON];
 }
 
@@ -517,7 +550,11 @@ RCT_EXPORT_MODULE()
     // Unless we were sending incremental (text) chunks to JS, all along, now
     // is the time to send the request body to JS.
     if (!(incrementalUpdates && [responseType isEqualToString:@"text"])) {
-      [strongSelf sendData:data responseType:responseType forTask:task];
+      [strongSelf sendData:data
+              responseType:responseType
+              mimeType:[response MIMEType]
+              fileName:[response suggestedFilename]
+              forTask:task];
     }
     NSArray *responseJSON = @[task.requestID,
                               RCTNullIfNil(error.localizedDescription),
@@ -543,6 +580,11 @@ RCT_EXPORT_MODULE()
   }
 
   [task start];
+}
+
+- (void)setContentHandler:(id<RCTXMLHttpRequestContentHandler>)handler
+{
+  _contentHandler = handler;
 }
 
 #pragma mark - Public API

@@ -52,7 +52,7 @@ if (BlobModule && typeof BlobModule.BLOB_URI_SCHEME === 'string') {
  */
 class URL {
   constructor() {
-    throw new Error('Creating BlobURL objects is not supported yet.');
+    throw new Error('Creating URL objects is not supported yet.');
   }
 
   static createObjectURL(blob: Blob) {

@@ -23,9 +23,13 @@ const invariant = require('fbjs/lib/invariant');
  * found when Flow v0.54 was deployed. To see the error delete this comment and
  * run Flow. */
 const warning = require('fbjs/lib/warning');
+const Blob = require('Blob');
+const BlobManager = require('BlobManager');
+const NativeModules = require('NativeModules');
 
-type ResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
-type Response = ?Object | string;
+export type NativeResponseType = 'base64' | 'blob' | 'text';
+export type ResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
+export type Response = ?Object | string;
 
 type XHRInterceptor = {
   requestSent(
@@ -200,6 +204,18 @@ class XMLHttpRequest extends EventTarget(...XHR_EVENTS) {
       SUPPORTED_RESPONSE_TYPES[responseType] || responseType === 'document',
       `The provided value '${responseType}' is unsupported in this environment.`
     );
+
+    if (this._responseType === 'blob' || responseType === 'blob') {
+      const BlobModule = NativeModules.BlobModule;
+      invariant(BlobModule, 'Native module BlobModule is required for blob support');
+      if (BlobModule) {
+        if (responseType === 'blob') {
+          BlobModule.addXMLHttpRequestHandler();
+        } else {
+          BlobModule.removeXMLHttpRequestHandler();
+        }
+      }
+    }
     this._responseType = responseType;
   }
 
@@ -242,10 +258,11 @@ class XMLHttpRequest extends EventTarget(...XHR_EVENTS) {
         break;
 
       case 'blob':
-        this._cachedResponse = new global.Blob(
-          [base64.toByteArray(this._response).buffer],
-          {type: this.getResponseHeader('content-type') || ''}
-        );
+        if (typeof this._response === 'object' && this._response) {
+          this._cachedResponse = BlobManager.createFromOptions(this._response);
+        } else {
+          throw new Error('Invalid response for blob');
+        }
         break;
 
       case 'json':
@@ -493,9 +510,12 @@ class XMLHttpRequest extends EventTarget(...XHR_EVENTS) {
       (args) => this.__didCompleteResponse(...args)
     ));
 
-    let nativeResponseType = 'text';
-    if (this._responseType === 'arraybuffer' || this._responseType === 'blob') {
+    let nativeResponseType: NativeResponseType = 'text';
+    if (this._responseType === 'arraybuffer') {
       nativeResponseType = 'base64';
+    }
+    if (this._responseType === 'blob') {
+      nativeResponseType = 'blob';
     }
 
     invariant(this._method, 'Request method needs to be defined.');

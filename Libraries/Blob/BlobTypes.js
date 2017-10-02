@@ -12,14 +12,16 @@
 
 'use strict';
 
-export type BlobProps = {
+export type BlobData = {
   blobId: string,
   offset: number,
   size: number,
+  name?: string,
   type?: string,
+  lastModified?: number,
 };
 
-export type FileProps = BlobProps & {
-  name: string,
+export type BlobOptions = {
+  type: string,
   lastModified: number,
 };

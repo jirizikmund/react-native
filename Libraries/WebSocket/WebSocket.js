@@ -14,6 +14,7 @@
 const Blob = require('Blob');
 const EventTarget = require('event-target-shim');
 const NativeEventEmitter = require('NativeEventEmitter');
+const BlobManager = require('BlobManager');
 const NativeModules = require('NativeModules');
 const Platform = require('Platform');
 const WebSocketEvent = require('WebSocketEvent');
@@ -151,13 +152,17 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
       invariant(BlobModule, 'Native module BlobModule is required for blob support');
       if (BlobModule) {
         if (binaryType === 'blob') {
-          BlobModule.enableBlobSupport(this._socketId);
+          BlobModule.addWebSocketHandler(this._socketId);
         } else {
-          BlobModule.disableBlobSupport(this._socketId);
+          BlobModule.removeWebSocketHandler(this._socketId);
         }
       }
     }
     this._binaryType = binaryType;
+  }
+
+  get binaryType(): ?BinaryType {
+    return this._binaryType;
   }
 
   close(code?: number, reason?: string): void {
@@ -178,7 +183,7 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
     if (data instanceof Blob) {
       const BlobModule = NativeModules.BlobModule;
       invariant(BlobModule, 'Native module BlobModule is required for blob support');
-      BlobModule.sendBlob(data, this._socketId);
+      BlobModule.sendOverSocket(data.data, this._socketId);
       return;
     }
 
@@ -231,7 +236,7 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
             data = base64.toByteArray(ev.data).buffer;
             break;
           case 'blob':
-            data = Blob.create(ev.data);
+            data = BlobManager.createFromOptions(ev.data);
             break;
         }
         this.dispatchEvent(new WebSocketEvent('message', { data }));
