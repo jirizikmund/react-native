@@ -152,11 +152,6 @@ public class BlobModule extends ReactContextBaseJavaModule {
 
   public BlobModule(ReactApplicationContext reactContext) {
     super(reactContext);
-
-    // Enable Blob support for networking modules
-    NetworkingModule.addUriHandler(NetworkingUriHandler);
-    NetworkingModule.addRequestBodyHandler(NetworkingRequestBodyHandler);
-    NetworkingModule.addResponseHandler(NetworkingResponseHandler);
   }
 
   @Override
