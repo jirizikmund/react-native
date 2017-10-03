@@ -8,22 +8,26 @@
  *
  * @providesModule File
  * @flow
+ * @format
  */
 'use strict';
 
 const Blob = require('Blob');
 
-import type { BlobOptions } from 'BlobTypes';
+import type {BlobOptions} from 'BlobTypes';
 
 /**
  * The File interface provides information about files.
  */
 class File extends Blob {
-
   /**
    * Constructor for JS consumers.
    */
-  constructor(parts: Array<Blob | string> = [], name?: string, options?: BlobOptions) {
+  constructor(
+    parts: Array<Blob | string> = [],
+    name?: string,
+    options?: BlobOptions,
+  ) {
     super(parts, options);
     this.data.name = name;
   }

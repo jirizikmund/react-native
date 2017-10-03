@@ -1,5 +1,12 @@
 /**
- * Copyright 2004-present Facebook. All Rights Reserved.
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 'use strict';
 
@@ -11,14 +18,13 @@ jest
     FileReaderModule: require('../__mocks__/FileReaderModule'),
   })
   .setMock('Platform', {
-    OS: 'android' // remove when iOS is implemented
+    OS: 'android', // remove when iOS is implemented
   });
 
 var Blob = require('Blob');
 var FileReader = require('FileReader');
 
 describe('FileReader', function() {
-
   it('should read blob as text', async () => {
     const e = await new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -38,5 +44,4 @@ describe('FileReader', function() {
     });
     expect(e.target.result).toBe('data:text/plain;base64,NDI=');
   });
-
 });
