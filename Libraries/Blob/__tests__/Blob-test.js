@@ -10,13 +10,9 @@
  */
 'use strict';
 
-jest
-  .unmock('Blob')
-  .unmock('BlobManager')
-  .unmock('../__mocks__/BlobModule')
-  .setMock('NativeModules', {
-    BlobModule: require('../__mocks__/BlobModule'),
-  });
+jest.setMock('NativeModules', {
+  BlobModule: require('../__mocks__/BlobModule'),
+});
 
 var Blob = require('Blob');
 

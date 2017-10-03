@@ -10,16 +10,10 @@
  */
 'use strict';
 
-jest
-  .disableAutomock()
-  .unmock('event-target-shim')
-  .setMock('NativeModules', {
-    BlobModule: require('../__mocks__/BlobModule'),
-    FileReaderModule: require('../__mocks__/FileReaderModule'),
-  })
-  .setMock('Platform', {
-    OS: 'android', // remove when iOS is implemented
-  });
+jest.unmock('event-target-shim').setMock('NativeModules', {
+  BlobModule: require('../__mocks__/BlobModule'),
+  FileReaderModule: require('../__mocks__/FileReaderModule'),
+});
 
 var Blob = require('Blob');
 var FileReader = require('FileReader');

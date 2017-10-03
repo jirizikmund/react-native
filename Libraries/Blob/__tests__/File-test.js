@@ -10,31 +10,36 @@
  */
 'use strict';
 
-jest
-  .unmock('File')
-  .unmock('Blob')
-  .unmock('BlobManager')
-  .unmock('../__mocks__/BlobModule')
-  .setMock('NativeModules', {
-    BlobModule: require('../__mocks__/BlobModule'),
-  });
+jest.setMock('NativeModules', {
+  BlobModule: require('../__mocks__/BlobModule'),
+});
 
-var File = require('File');
+const File = require('File');
 
 describe('File', function() {
   it('should create empty file', () => {
-    const file = new File();
+    const file = new File([], 'test.jpg');
     expect(file).toBeInstanceOf(File);
     expect(file.data.offset).toBe(0);
     expect(file.data.size).toBe(0);
     expect(file.size).toBe(0);
     expect(file.type).toBe('');
-    expect(file.name).toBe('');
-    expect(file.lastModified).toBe(0);
+    expect(file.name).toBe('test.jpg');
+    expect(file.lastModified).toEqual(expect.any(Number));
   });
 
   it('should create empty file with type', () => {
-    const file = new File([], {type: 'image/jpeg'});
+    const file = new File([], 'test.jpg', {type: 'image/jpeg'});
     expect(file.type).toBe('image/jpeg');
+  });
+
+  it('should create empty file with lastModified', () => {
+    const file = new File([], 'test.jpg', {lastModified: 1337});
+    expect(file.lastModified).toBe(1337);
+  });
+
+  it('should throw on invalid arguments', () => {
+    expect(() => new File()).toThrow();
+    expect(() => new File([])).toThrow();
   });
 });

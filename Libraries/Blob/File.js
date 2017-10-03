@@ -14,6 +14,8 @@
 
 const Blob = require('Blob');
 
+const invariant = require('invariant');
+
 import type {BlobOptions} from 'BlobTypes';
 
 /**
@@ -24,10 +26,15 @@ class File extends Blob {
    * Constructor for JS consumers.
    */
   constructor(
-    parts: Array<Blob | string> = [],
-    name?: string,
+    parts: Array<Blob | string>,
+    name: string,
     options?: BlobOptions,
   ) {
+    invariant(
+      parts != null && name != null,
+      'Failed to construct `File`: Must pass both `parts` and `name` arguments.',
+    );
+
     super(parts, options);
     this.data.name = name;
   }
