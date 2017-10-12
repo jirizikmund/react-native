@@ -290,7 +290,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     }
 
     __weak RCTImageView *weakSelf = self;
-    if (RCTIsLocalAssetURL(source.request.URL) || [source.request.URL.pathExtension isEqualToString:@"gif"] || [source.request.URL.scheme isEqualToString: @"assets-library"]) {
       RCTImageLoaderProgressBlock progressHandler = nil;
       if (_onProgress) {
         progressHandler = ^(int64_t loaded, int64_t total) {
@@ -326,33 +325,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
                                      progressBlock:progressHandler
                                   partialLoadBlock:partialLoadHandler
                                    completionBlock:completionHandler];
-    } else {
-      SDWebImageDownloaderProgressBlock progressHandler = nil;
-      if (_onProgress) {
-        progressHandler = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-          self->_onProgress(@{
-                              @"loaded": @((double)receivedSize),
-                              @"total": @((double)expectedSize),
-                              });
-        };
-      }
-      SDExternalCompletionBlock completionHandler = ^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-        if (image && cacheType != SDImageCacheTypeMemory) {
-          // TODO: Make this a prop.
-          weakSelf.alpha = 0;
-          [UIView animateWithDuration:0.3 animations:^{
-            weakSelf.alpha = 1;
-          }];
-        }
-        [weakSelf imageLoaderLoadedImage:image error:error forImageSource:source partial:NO];
-      };
-
-      [self sd_setImageWithURL:source.request.URL
-              placeholderImage:_defaultImage
-                       options:0
-                      progress:progressHandler
-                     completed:completionHandler];
-    }
   } else {
     [self clearImage];
   }

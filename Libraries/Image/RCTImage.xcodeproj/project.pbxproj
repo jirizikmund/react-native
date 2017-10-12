@@ -15,6 +15,8 @@
 		13EF7F7F1BC825B1003F47DD /* RCTLocalAssetImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 13EF7F7E1BC825B1003F47DD /* RCTLocalAssetImageLoader.m */; };
 		143879381AAD32A300F088A5 /* RCTImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 143879371AAD32A300F088A5 /* RCTImageLoader.m */; };
 		194353851DF9BCB7002D5AEF /* libSDWebImage iOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 194353721DF9BC00002D5AEF /* libSDWebImage iOS static.a */; };
+		19C9321B1F9024A2001A0585 /* RCTSDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 19C932191F9024A2001A0585 /* RCTSDWebImageLoader.h */; };
+		19C9321C1F9024A2001A0585 /* RCTSDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C9321A1F9024A2001A0585 /* RCTSDWebImageLoader.m */; };
 		2D3B5F1A1D9B0D0400451313 /* RCTImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = CCD34C261D4B8FE900268922 /* RCTImageCache.m */; };
 		2D3B5F1B1D9B0D0700451313 /* RCTImageBlurUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF314711C9B0DD30049118E /* RCTImageBlurUtils.m */; };
 		2D3B5F1C1D9B0D1300451313 /* RCTResizeMode.m in Sources */ = {isa = PBXBuildFile; fileRef = 139A38831C4D587C00862840 /* RCTResizeMode.m */; };
@@ -158,6 +160,8 @@
 		13EF7F7E1BC825B1003F47DD /* RCTLocalAssetImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTLocalAssetImageLoader.m; sourceTree = "<group>"; };
 		143879371AAD32A300F088A5 /* RCTImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTImageLoader.m; sourceTree = "<group>"; };
 		194353681DF9BC00002D5AEF /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = vendor/SDWebImage/SDWebImage.xcodeproj; sourceTree = "<group>"; };
+		19C932191F9024A2001A0585 /* RCTSDWebImageLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTSDWebImageLoader.h; sourceTree = "<group>"; };
+		19C9321A1F9024A2001A0585 /* RCTSDWebImageLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTSDWebImageLoader.m; sourceTree = "<group>"; };
 		2D2A283A1D9B042B00D4039D /* libRCTImage-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libRCTImage-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		35123E6A1B59C99D00EBAD80 /* RCTImageStoreManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTImageStoreManager.m; sourceTree = "<group>"; };
 		354631661B69857700AA0B86 /* RCTImageEditingManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RCTImageEditingManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -243,6 +247,8 @@
 				1304D5AA1AA8C4A30002E2BE /* RCTImageViewManager.m */,
 				13EF7F7D1BC825B1003F47DD /* RCTLocalAssetImageLoader.h */,
 				13EF7F7E1BC825B1003F47DD /* RCTLocalAssetImageLoader.m */,
+				19C932191F9024A2001A0585 /* RCTSDWebImageLoader.h */,
+				19C9321A1F9024A2001A0585 /* RCTSDWebImageLoader.m */,
 				3D5FA63E1DE4B44A0058FD77 /* RCTResizeMode.h */,
 				139A38831C4D587C00862840 /* RCTResizeMode.m */,
 			);
@@ -267,6 +273,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19C9321B1F9024A2001A0585 /* RCTSDWebImageLoader.h in Headers */,
 				3DED3A8A1DE6F79800336DD7 /* RCTGIFImageDecoder.h in Headers */,
 				3DED3A901DE6F79800336DD7 /* RCTImageUtils.h in Headers */,
 				3DED3A8B1DE6F79800336DD7 /* RCTImageBlurUtils.h in Headers */,
@@ -457,6 +464,7 @@
 				1304D5AC1AA8C4A30002E2BE /* RCTImageViewManager.m in Sources */,
 				1304D5B21AA8C50D0002E2BE /* RCTGIFImageDecoder.m in Sources */,
 				143879381AAD32A300F088A5 /* RCTImageLoader.m in Sources */,
+				19C9321C1F9024A2001A0585 /* RCTSDWebImageLoader.m in Sources */,
 				354631681B69857700AA0B86 /* RCTImageEditingManager.m in Sources */,
 				139A38841C4D587C00862840 /* RCTResizeMode.m in Sources */,
 				1304D5AB1AA8C4A30002E2BE /* RCTImageView.m in Sources */,
