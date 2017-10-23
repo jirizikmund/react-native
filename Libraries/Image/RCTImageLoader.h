@@ -12,6 +12,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTResizeMode.h>
 #import <React/RCTURLRequestHandler.h>
+#import <React/RCTImageCacheMode.h>
 
 typedef void (^RCTImageLoaderProgressBlock)(int64_t progress, int64_t total);
 typedef void (^RCTImageLoaderPartialLoadBlock)(UIImage *image);

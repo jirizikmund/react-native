@@ -20,6 +20,7 @@
 #import "RCTImageBlurUtils.h"
 #import "RCTImageLoader.h"
 #import "RCTImageUtils.h"
+#import "RCTImageCacheMode.h"
 
 /**
  * Determines whether an image of `currentSize` should be reloaded for display
@@ -330,7 +331,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   }
 }
 
-- (void)imageLoaderLoadedImage:(UIImage *)loadedImage error:(NSError *)error forImageSource:(RCTImageSource *)source partial:(BOOL)isPartialLoad
+- (void)imageLoaderLoadedImage:(UIImage *)loadedImage
+                         error:(NSError *)error
+                forImageSource:(RCTImageSource *)source
+                       partial:(BOOL)isPartialLoad
+                     cacheMode:(RCTImageCacheMode)cacheMode
 {
   if (![source isEqual:_pendingImageSource]) {
     // Bail out if source has changed since we started loading
@@ -351,6 +356,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     if (!isPartialLoad) {
       self->_imageSource = source;
       self->_pendingImageSource = nil;
+    }
+    
+    if (cacheMode != RCTImageCacheModeMemory && self->_fadeDuration != 0) {
+      self.alpha = 0;
+      [UIView animateWithDuration:self->_fadeDuration animations:^{
+        self.alpha = 1;
+      }];
     }
 
     if (image.reactKeyframeAnimation) {

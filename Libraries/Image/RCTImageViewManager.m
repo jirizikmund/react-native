@@ -41,6 +41,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPartialLoad, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onLoad, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onLoadEnd, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, RCTResizeMode)
+RCT_EXPORT_VIEW_PROPERTY(fadeDuration, NSInteger)
 RCT_REMAP_VIEW_PROPERTY(source, imageSources, NSArray<RCTImageSource *>);
 RCT_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, RCTImageView)
 {
