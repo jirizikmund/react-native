@@ -20,6 +20,8 @@ const morgan = require('morgan');
 const path = require('path');
 const MiddlewareManager = require('./middleware/MiddlewareManager');
 
+const {ASSET_REGISTRY_PATH} = require('../core/Constants');
+
 import type {ConfigT} from 'metro';
 
 export type Args = {|
@@ -55,6 +57,9 @@ async function runServer(args: Args, config: ConfigT) {
   const serverInstance = await Metro.runServer({
     config: {
       ...config,
+      assetRegistryPath: ASSET_REGISTRY_PATH,
+      enhanceMiddleware: middleware =>
+        middlewareManager.getConnectInstance().use(middleware),
       hmrEnabled: true,
       maxWorkers: args.maxWorkers,
       reporter,
